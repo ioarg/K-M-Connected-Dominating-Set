@@ -1,0 +1,24 @@
+body,h1,h2,h3,h4,h5,h6{
+	margin: 0;
+	padding:0;
+}
+
+body{
+
+}
+
+.page-header{
+	margin:0px;
+	padding:20px;
+	background-color:#00bbdd;
+	color:white;
+}
+
+#graph_panel{
+	width:600px !important;
+	height:600px !important;
+}
+
+.col-md-6{
+	margin-top: 20px;
+}
