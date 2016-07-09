@@ -49,36 +49,34 @@ $(document).ready(function(){
 
     	//if adding a node is enabled
     	if (addingNode){
+    		console.log("adding new node ===========>");
+    		var newID = 0;
+    		var maxID = 0;
+    		
+    		if(usedIds.length != 0){
+    			maxID = Math.max.apply(Math,usedIds);
+    		}
+	  		console.log("max_id ",maxID);
+	  		console.log(typeof(newID));
+	  		console.log(typeof(maxID));
+	  		console.log(typeof(usedIds));
+	  		//We set the new node's id. If an id is missing between min and max
+	  		//this will be the new id
 
-    		var newID;
-
-	  		/*
-	  		We set the new node's id.
-	  		If a node was removed, then we use a sorted list
-	  		of used ids to find the one missing and assign it
-	  		to the new node
-	  		*/
-	    	if(usedIds.length == 0){
-	    		newID = 1;
-	    		usedIds.push(newID);
-	    	}
-	    	else if(usedIds.length == 1){
-	    		newID = 2;
-	    		usedIds.push(newID);
-	    	}
-	    	else{
-	    		for(var i=1; i < usedIds.length; i++){
-	    			if( (usedIds[i] - usedIds[i-1]) == 1 ){
-	    				newID = usedIds[i] + 1;
-	    			}
-	    			else{
-	    				newID = i+1;
-	    				break;
-	    			}
-	    		}
-	    		usedIds.push(newID);
-	    	}
-	    	usedIds.sort();
+	  		for(var p=1; p<maxID; p++){
+	  			if( usedIds.indexOf(p) == -1){
+	  				newID = p;
+	  				break;
+	  				console.log("Id not found between [min, max) : ", newID);
+	  			}
+	  		}
+	  		//If all ids between min and max where found in the list
+	  		if(newID == 0){
+	  			newID = maxID + 1;
+	  			console.log("New max id : ", newID);
+	  		}
+	    	
+	    	usedIds.push(newID);
 	    	console.log(usedIds);
 
 	  		//create the graphics shape at the position clicked
@@ -140,7 +138,7 @@ $(document).ready(function(){
 			usedIds = usedIds.filter(function(el){ 
 				return el != shape_id; 
 			});
-			usedIds.sort();
+			
 			console.log("Used ids ", usedIds);
 			//remove the shape from the graph
 			cellView.model.remove();
