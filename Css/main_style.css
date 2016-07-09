@@ -18,14 +18,15 @@ p{
 .page-header{
 	margin:0px;
 	padding:20px;
-	background-color:#008888;
+	/*background-color:#008888;*/
+	background-color: #444444;
 	color:white;
 }
 
 #graph_panel{
 	width:800px !important;
 	height:700px !important;
-	background-color: #dddddd;
+	background-color: #eeeeee;
 	border-style:solid;
 	border-color: #aaaaaa;
 	padding:0;
@@ -59,3 +60,11 @@ p{
 .btn_clicked{
 	background-color: #00ddbb !important;
 }
+
+/* joint js disable link tools */
+/*.link-tools .tool-remove { display: none; }*/
+.link-tools .tool-options { display: none; }
+.link .mark-errors { display: none; }
+.link .marker-arrowheads{ display: none; }
+.link .marker-vertex-group{display: none;}
+.link .connection-wrap{display: none;}
