@@ -18,10 +18,18 @@
 		<div class="container-fluid" id="panel_container">
 			<div class="floater" id="left_panel">
 				<section>
-  					<h3>Graph Viewer</h3>
-					<p>Use the tools below to construct a connected network graph</p>
-					<p>Hover the mouse over an edge to show the "remove" option</p>
-					<p>Press ESC to stop the tools</p>
+					<article>
+	  					<h3 class ="underlined colored-heading">Graph Viewer</h3>
+						<h4>Use the tools below to construct a connected network graph :</h4>
+						<ul>
+							<li>Press <em class="text-info">Add Node</em> and click on an area inside the graph view</li>
+							<li>Press <em class="text-info">Remove Node</em> and select the nodes to be removed</li>
+							<li>Press <em class="text-info">Link Nodes</em> and select two nodes to link</li>
+							<li>To remove a link, press <em class="text-info">ESC</em> to deselect tools, and then hover the mouse over a link</li>
+							<li>Press <em class="text-info">ESC</em> to stop the tools</li>
+							<li>Moving a node automatically deselects the tools</li>
+						</ul>
+					</article>
 				</section>
 				<div class="btn-group" role="group">
 					<div class="btn btn-default btn-primary" id="add_btn">Add Node <span class="glyphicon glyphicon-plus"></span></div>
@@ -32,8 +40,10 @@
 			</div>
 			<div class="floater" id="right_panel">
 				<section>
-	  				<h3>Algorithm Analysis</h3>
-					<p>Choose between viewing the final results or each step of the algorithm</p>
+					<article>
+		  				<h3 class="underlined colored-heading">Algorithm Analysis</h3>
+						<p>Choose between viewing the final results or each step of the algorithm</p>
+					</article>
 				</section>
 				<div class="btn-group" role="group">
 					<div class="btn btn-default btn-primary" >Final Results</div>
@@ -41,6 +51,7 @@
 				</div>
 			</div>
 		</div>
+		<footer class="container-fluid text-center"><h5>Graphs made with jointjs <a href="http://jointjs.com/">http://jointjs.com/</a></h5></footer>
 	</body>
 	<!-- jQuery library -->
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.2/jquery.min.js"></script>

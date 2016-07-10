@@ -30,7 +30,7 @@ $(document).ready(function(){
 	var linkEnd; 										//End node of the link
 
 
-	//Graphics Management (with Joint Js) ==============================================================
+	//Graphics Management (with Joint Js) ==============================================================================
 
 	//the main graph object
 	var graph = new joint.dia.Graph;
@@ -50,41 +50,14 @@ $(document).ready(function(){
     	//if adding a node is enabled
     	if (addingNode){
     		console.log("adding new node ===========>");
-    		var newID = 0;
-    		var maxID = 0;
-    		
-    		if(usedIds.length != 0){
-    			maxID = Math.max.apply(Math,usedIds);
-    		}
-	  		console.log("max_id ",maxID);
-	  		console.log(typeof(newID));
-	  		console.log(typeof(maxID));
-	  		console.log(typeof(usedIds));
-	  		//We set the new node's id. If an id is missing between min and max
-	  		//this will be the new id
-
-	  		for(var p=1; p<maxID; p++){
-	  			if( usedIds.indexOf(p) == -1){
-	  				newID = p;
-	  				break;
-	  				console.log("Id not found between [min, max) : ", newID);
-	  			}
-	  		}
-	  		//If all ids between min and max where found in the list
-	  		if(newID == 0){
-	  			newID = maxID + 1;
-	  			console.log("New max id : ", newID);
-	  		}
-	    	
-	    	usedIds.push(newID);
-	    	console.log(usedIds);
+    		var nodeID = calculateNewId();
 
 	  		//create the graphics shape at the position clicked
 	    	var circleShape = new joint.shapes.basic.Circle({
 	    		position: { x: event.pageX - panelOffset.left - 20, y: event.pageY - panelOffset.top - 20},
 	    		size:{ width:35, height:35},
-	    		attrs:{ circle: {fill: '#cccc00'}, text: { text : newID, fill : 'white'}},
-	    		prop:{ node_id : newID}
+	    		attrs:{ circle: {fill: '#cccc00'}, text: { text : nodeID, fill : 'white'}},
+	    		prop:{ node_id : nodeID}
 	    	});
 
 	    	//stop adding/removing nodes if you moved one
@@ -96,7 +69,7 @@ $(document).ready(function(){
 	    	graph.addCell(circleShape);
 
 	    	//create the node in the network
-	    	var node = new Node( newID, [], circleShape);
+	    	var node = new Node( nodeID, [], circleShape);
 	    	network.nodes.push(node);
 
 	    	console.log(network);
@@ -111,45 +84,16 @@ $(document).ready(function(){
 		if (removingNode){
 			//get the id of the node
 			var shape_id = cellView.model.attributes.prop["node_id"];
-			console.log("removing the node ======================>", shape_id);
-			var neighbor_id;
-			var neighborhood = returnNodeById(shape_id).neighbors;
-			var neighbor;
-			console.log("i will check this neighborhood", neighborhood);
-			//update neighborhood of removed node and its neighbors'
-			if(neighborhood.length > 0){
-				//for each of his neighbors, get their id
-				for(var j=0; j<neighborhood.length; j++){
-					neighbor_id = neighborhood[j];
-					console.log("checking neihbor : ",neighbor_id);
-					//find the node with that id in the network
-					neighbor = returnNodeById(neighbor_id);
-					neighbor.neighbors = neighbor.neighbors.filter(function(index) {
-						return index != shape_id ;
-					});
-				}
-			}
-
-			//remove the node from the network
-			network.nodes = network.nodes.filter(function (el) {
-				return el.id != shape_id;
-			});
-			//update the used ids list
-			usedIds = usedIds.filter(function(el){ 
-				return el != shape_id; 
-			});
-			
-			console.log("Used ids ", usedIds);
+			updateNeighborhoodOfRemoved(shape_id);
 			//remove the shape from the graph
 			cellView.model.remove();
 			console.log(network);
 		}
 		//else if we are connecting nodes ======
 		else if(linkSelect1){
-
 			/*
-			I selected the first node to link. 
-			I need to select another one as the end of the link
+			I selected the first node to link (source). 
+			I need to select another one as the end of the link (edge)
 			*/
 			linkStart = cellView.model;
 			linkSelect1 = false;
@@ -163,14 +107,6 @@ $(document).ready(function(){
 			linkEnd = cellView.model;
 			linkSelect2 = false;
 
-			var link = new joint.dia.Link({
-		        source: { id: linkStart.id },
-		        target: { id: linkEnd.id }
-		    });
-
-			graph.addCell(link);
-			linkSelect1 = true;
-
 			//update neighborhood for nodes
 			var shape1_node = returnNodeById(linkStart.attributes.prop["node_id"]);
 			var shape2_node = returnNodeById(linkEnd.attributes.prop["node_id"]);
@@ -179,6 +115,18 @@ $(document).ready(function(){
 			shape2_node.neighbors.push(shape1_node.id);
 			console.log(network);
 
+			var link = new joint.dia.Link({
+		        source: { id: linkStart.id }, // graph model ids
+		        target: { id: linkEnd.id },
+		        prop:{ node1: shape1_node.id, node2: shape2_node.id } //network ids
+		    });
+
+			//add the edge to the graph
+			graph.addCell(link);
+
+
+			//return funcitonality to selecting the source of a link
+			linkSelect1 = true;
 		}
 	    
 	});
@@ -187,23 +135,34 @@ $(document).ready(function(){
  	graph.on('remove',function(cell){
 
  		if( (cell.attributes.type == "link") && !removingNode){
- 			console.log("Remove link only selected");
- 			var id1 = cell.getSourceElement().id;
- 			var id2 = cell.getTargetElement().id;
+ 			console.log("Remove link only -> selected ===========");
+ 			//get the source and target network ids
+ 			var id1 = cell.attributes.prop["node1"];
+ 			var id2 = cell.attributes.prop["node2"];
 
  			console.log(id1);
+ 			console.log(id2);
 
- 			network.nodes[id1].neighbors = network.nodes[id1].neighbors.filter(function (el) {
+ 			//get the network nodes with these ids
+ 			var networkNode1 = returnNodeById(id1);
+ 			var networkNode2 = returnNodeById(id2);
+
+ 			//update their neighborhoods
+ 			networkNode1.neighbors = networkNode1.neighbors.filter(function (el) {
  				return el != id2;
  			});
 
-			network.nodes[id2].neighbors = network.nodes[id2].neighbors.filter(function (el) {
+			networkNode2.neighbors = networkNode2.neighbors.filter(function (el) {
  				return el != id1;
  			}); 			
+
+ 			console.log(network);
  		}
  	});
  	
- 	//returns a node object from the network
+ 	//Network stuff ===========================================================================================
+
+ 	//Returns a node object from the network
  	function returnNodeById(search_id){
  		if(network.nodes.length == 0){
  			console.log("Can't retrieve node from empty network");
@@ -218,19 +177,97 @@ $(document).ready(function(){
  		}
  	}
 
-    // Buttons ================================================================
+ 	//Update the neighborhood of the removed node and its neighbors
+ 	function updateNeighborhoodOfRemoved(removed_shape_id){
+ 		console.log("removing the node ======================>", removed_shape_id);
+		var neighbor_id;
+		var neighborhood = returnNodeById(removed_shape_id).neighbors;
+		var neighbor;
+		console.log("i will check this neighborhood", neighborhood);
+		//update neighborhood of removed node and its neighbors'
+		if(neighborhood.length > 0){
+			//for each of his neighbors, get their id
+			for(var j=0; j<neighborhood.length; j++){
+				neighbor_id = neighborhood[j];
+				console.log("checking neihbor : ",neighbor_id);
+				//find the node with that id in the network
+				neighbor = returnNodeById(neighbor_id);
+				neighbor.neighbors = neighbor.neighbors.filter(function(index) {
+					return index != removed_shape_id ;
+				});
+			}
+		}
+
+		//remove the node from the network
+		network.nodes = network.nodes.filter(function (el) {
+			return el.id != removed_shape_id;
+		});
+		//update the used ids list
+		usedIds = usedIds.filter(function(el){ 
+			return el != removed_shape_id; 
+		});
+			
+		console.log("Used ids ", usedIds);
+ 	}
+
+ 	/*
+ 	It will calculate a proper new id for a new node
+ 	If nodes were removed, then the new id will be the minimum of the removed ids
+ 	else it will be the maximum id + 1
+ 	*/
+ 	function calculateNewId(){
+ 		var newID = 0;
+    	var maxID = 0;
+    		
+    	if(usedIds.length != 0){
+    		maxID = Math.max.apply(Math,usedIds);
+    	}
+
+	  	//We set the new node's id. If an id is missing between min and max
+	  	//this will be the new id
+	  	for(var p=1; p<maxID; p++){
+	  		if( usedIds.indexOf(p) == -1){
+	  			newID = p;
+	  			break;
+	  			//console.log("Id not found between [min, max) : ", newID);
+	  		}
+	  	}
+	  	//If all ids between min and max where found in the list
+	  	if(newID == 0){
+	  		newID = maxID + 1;
+	  		//console.log("New max id : ", newID);
+	  	}
+	   	
+	   	usedIds.push(newID);
+	   	console.log(usedIds);
+	   	return newID;
+ 	}
+
+    // Buttons ===========================================================================
 	$("#add_btn").click(function(){
 		addingNode = true;
 		removingNode = false;
+		linkSelect1 = false;
+		linkSelect2 = false;
+		//disable link tools
+		$(".tool-remove").hide();
 	});
 
 	$("#rm_btn").click(function() {
 		removingNode = true;
 		addingNode = false;
+		linkSelect1 = false;
+		linkSelect2 = false;
+		//disable link tools
+		$(".tool-remove").hide();
 	});
 
     $("#link_btn").click(function() {
     	linkSelect1 = true;
+    	addingNode = false;
+    	removingNode = false;
+    	//disable link tools
+		$(".tool-remove").hide();
     });
 
     $(".btn").click(function(){
@@ -243,19 +280,17 @@ $(document).ready(function(){
     		case "all" :
 		    	addingNode = false;
 		    	removingNode = false;
-		    	linkStart = false;
-		    	linkEnd = false;
+		    	linkSelect1 = false;
+				linkSelect2 = false;
 		    	removingLink = false;
+		    	//disable link tools
+				$(".tool-remove").show();
 		    	$(".btn").removeClass("btn_clicked");
-		    	break;
-		    case "add" :
-		    	addingNode = false;
-		    	$("#add_btn").removeClass("btn_clicked");
 		    	break;
 		    default: break;
 		}
     }
- 	//keyboard events ===========================================
+ 	//keyboard events ===================================================================
    	document.addEventListener("keydown", function(event) {
     	if(event.keyCode == '27'){
     		stopFunctionality("all");

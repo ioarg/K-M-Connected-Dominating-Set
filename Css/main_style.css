@@ -7,12 +7,18 @@ body{
 	font-family: 'Open Sans', sans-serif;
 }
 
-h3{
-	margin: 10px 0px 10px 0px;
+h3, h4{
+	margin: 0px 0px 10px 0px;
+	padding-bottom: 10px;
 }
 
 p{
-	margin: 5px 0px 5px 0px;
+	margin: 10px 0px 10px 0px;
+}
+
+ul{
+
+	padding-bottom: 10px;
 }
 
 .page-header{
@@ -21,15 +27,20 @@ p{
 	/*background-color:#008888;*/
 	background-color: #444444;
 	color:white;
+	/* Permalink - use to edit and share this gradient: http://colorzilla.com/gradient-editor/#0a8455+0,05875e+51,05685c+100 */
+	background: #0a8455; /* Old browsers */
+	background: -moz-linear-gradient(top, #0a8455 0%, #05875e 51%, #05685c 100%); /* FF3.6-15 */
+	background: -webkit-linear-gradient(top, #0a8455 0%,#05875e 51%,#05685c 100%); /* Chrome10-25,Safari5.1-6 */
+	background: linear-gradient(to bottom, #0a8455 0%,#05875e 51%,#05685c 100%); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
+	filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#0a8455', endColorstr='#05685c',GradientType=0 ); /* IE6-9 */
 }
 
 #graph_panel{
 	width:800px !important;
 	height:700px !important;
-	background-color: #eeeeee;
+	background-color: #ddeedd;
 	border-style:solid;
 	border-color: #aaaaaa;
-	padding:0;
 }
 
 .floater{
@@ -37,9 +48,6 @@ p{
 	margin-top: 20px;
 }
 
-#left_panel{
-
-}
 
 #right_panel{
 	width:400px;
@@ -54,15 +62,42 @@ p{
 }
 
 .btn-primary{
-	background-color: #00bbaa !important;
+	background-color: #00bb99 !important;
 }
 
 .btn_clicked{
 	background-color: #00ddbb !important;
 }
 
-/* joint js disable link tools */
-/*.link-tools .tool-remove { display: none; }*/
+footer{
+	background-color: #444444;
+	color: white;
+	padding-top:30px;
+	padding-bottom: 30px;
+}
+
+a{
+	color: #00ddbb;
+}
+
+a:hover{
+	color: #00ffee;
+}
+
+a:active{
+	color: #00ffee;
+}
+
+.underlined{
+	box-shadow: 0px 1px #dddddd;
+	width:250px;
+}
+
+.colored-heading{
+	color: #008877 !important;
+}
+/* joint js disable link tools ====================== */
+.link-tools .tool-remove { display: none; }
 .link-tools .tool-options { display: none; }
 .link .mark-errors { display: none; }
 .link .marker-arrowheads{ display: none; }
