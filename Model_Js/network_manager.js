@@ -1,25 +1,55 @@
+/*
+All network joint.js functionality will be placed here
+We will also create a global network object from the
+joint.js elements, to be used in our algorithm file.
+*/
+
+//Global variables to all files ############################################
+
+//Some color globals
+var DEFAULTFILL = "#ddcc00";
+var DOMINATORFILL = "#00dd00";
+
+//Network Structure 
+//Node class
+//the graphic is used for rendering a node graphics shape
+var Node = function (id_in, neighbors, graphic){
+
+	this.id = id_in;
+	this.neighbors = neighbors;
+	this.graphic = graphic;
+	this.dominator = false;
+}
+
+//The network class => an array of nodes
+
+var Network = function (){
+	this.nodes = [];
+} 
+
+var network = new Network();	//The Network object that holds all the network information
+
+
+//Returns a node object from the network
+function returnNodeById(search_id){
+ 	if(network.nodes.length == 0){
+ 		console.log("Can't retrieve node from empty network");
+ 	}
+ 	else{
+ 		for(var i=0; i<network.nodes.length; i++){
+ 			if(network.nodes[i].id == search_id){
+ 				return network.nodes[i];
+ 			}
+ 		}
+ 		console.log("Searching for node by id unsuccesful");
+	}
+}
+
+//Local scope ################################################################
 $(document).ready(function(){
 
-	//Network Structure ==========================================
+	// Initialization =========================
 
-	//Node class
-	//the graphic is used for rendering a node graphics shape
-	var Node = function (id_in, neighbors, graphic){
-
-		this.id = id_in;
-		this.neighbors = neighbors;
-		this.graphic = graphic;
-	}
-
-	//The network class => an array of nodes
-
-	var Network = function (){
-		this.nodes = [];
-	} 
-
-	// Initialization Globals =========================
-
-	var network = new Network(); 						//The Network object that holds all the network information
 	var usedIds = []; 									//A list of the used node ids so far
 	var panelOffset = $("#graph_panel").offset();		//The offset of the panel from the document, for mouse events
 	var addingNode = false; 							//If the add node button is active
@@ -30,7 +60,7 @@ $(document).ready(function(){
 	var linkEnd; 										//End node of the link
 
 
-	//Graphics Management (with Joint Js) ==============================================================================
+	//Graphics Management (with Joint Js) ================================================
 
 	//the main graph object
 	var graph = new joint.dia.Graph;
@@ -56,7 +86,7 @@ $(document).ready(function(){
 	    	var circleShape = new joint.shapes.basic.Circle({
 	    		position: { x: event.pageX - panelOffset.left - 20, y: event.pageY - panelOffset.top - 20},
 	    		size:{ width:35, height:35},
-	    		attrs:{ circle: {fill: '#cccc00'}, text: { text : nodeID, fill : 'white'}},
+	    		attrs:{ circle: {fill: DEFAULTFILL}, text: { text : nodeID, fill : 'white'}},
 	    		prop:{ node_id : nodeID}
 	    	});
 
@@ -160,22 +190,7 @@ $(document).ready(function(){
  		}
  	});
  	
- 	//Network stuff ===========================================================================================
-
- 	//Returns a node object from the network
- 	function returnNodeById(search_id){
- 		if(network.nodes.length == 0){
- 			console.log("Can't retrieve node from empty network");
- 		}
- 		else{
- 			for(var i=0; i<network.nodes.length; i++){
- 				if(network.nodes[i].id == search_id){
- 					return network.nodes[i];
- 				}
- 			}
- 			console.log("Searching for node by id unsuccesful");
- 		}
- 	}
+ 	//Network stuff ==========================================================================
 
  	//Update the neighborhood of the removed node and its neighbors
  	function updateNeighborhoodOfRemoved(removed_shape_id){
@@ -283,13 +298,13 @@ $(document).ready(function(){
 		    	linkSelect1 = false;
 				linkSelect2 = false;
 		    	removingLink = false;
-		    	//disable link tools
 				$(".tool-remove").show();
 		    	$(".btn").removeClass("btn_clicked");
 		    	break;
 		    default: break;
 		}
     }
+
  	//keyboard events ===================================================================
    	document.addEventListener("keydown", function(event) {
     	if(event.keyCode == '27'){

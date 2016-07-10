@@ -41,6 +41,7 @@ ul{
 	background-color: #ddeedd;
 	border-style:solid;
 	border-color: #aaaaaa;
+	padding: 0px;
 }
 
 .floater{
@@ -51,7 +52,7 @@ ul{
 
 #right_panel{
 	width:400px;
-	height: 850px;
+	height: 1000px;
 	margin-left: 20px;
 	box-shadow: -2px 0px 0px #dddddd;
 	padding-left: 20px;
@@ -63,6 +64,10 @@ ul{
 
 .btn-primary{
 	background-color: #00bb99 !important;
+}
+
+.btn-primary:hover{
+	background-color: #00ddbb !important;
 }
 
 .btn_clicked{
