@@ -2,9 +2,9 @@
 This file will handle the algorithm functionality. It will use the
 network object created in network_manager.js
 */
-var dominatorListWL = [];	//the dominators after Wu & Lee's algorithm
+var dominatorListWL = [];	//the dominators after Wu & Li's algorithm
 var dominatorListKM = [];	//the dominators after the K,M algorithm
-var finalResultsStringWL = "<h5>Initially we use the Wu && Lee algorithm to get a minimum CDS</h5>";
+var finalResultsStringWL = "<p>Initially we use the Wu && Li algorithm to get a minimum CDS </p>";
 
 //Returns true if the given node has a neighbor with the given id ======================
 function hasNeighbor(node, id){
@@ -19,10 +19,10 @@ function hasNeighbor(node, id){
 }
 
 /* 
-This function will use the Wu & Lee algorithm to find a minimum ========================
+This function will use the Wu & Li algorithm to find a minimum ========================
 CDS, but not k,m connected	
 */
-function calculateWuLee(){
+function calculateWuLi(){
 
 	if(network.nodes.length > 2){
 			
@@ -32,12 +32,11 @@ function calculateWuLee(){
 		dominatorListWL = [];
 
 		console.log("The network ", network );
-		console.log("Beginning Wu & Lee");
+		console.log("Beginning Wu & Li ===========>");
 
 		//Initial decision without Rule1 && Rule 2 ========
 		//for every node
 		for(var i=0; i<nodesArray.length; i++){
-			console.log("beginning process ======>");
 			console.log("current node : ", nodesArray[i].id);
 			//for every neighbor of that node
 			for(var j=0; j<nodesArray[i].neighbors.length; j++){
@@ -72,6 +71,7 @@ function calculateWuLee(){
 			}
 		}
 
+		finalResultsStringWL += "<p>Dominators after first step : " + dominatorListWL +"</p>";
 		//Rule 1
 		//Rule 2
 
@@ -79,7 +79,7 @@ function calculateWuLee(){
 
 	}
 	else{
-		console.log("Network too small yet");
+		finalResultsStringWL = "<p>Network too small yet</p>";
 	}
 
 }

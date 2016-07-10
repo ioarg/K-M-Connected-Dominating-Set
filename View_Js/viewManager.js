@@ -29,9 +29,13 @@ $(document).ready(function() {
 	$("#results_btn").click(function(event) {
 		$(".btn").removeClass("btn_clicked");
 		$("#results_btn").addClass("btn_clicked");
-		calculateWuLee();
-		console.log("Dominators after Wu&Lee : ", dominatorListWL);
+		finalResultsStringWL = "<p>Initially we use the Wu && Li algorithm to get a minimum CDS </p>";
+		calculateWuLi();
 		paintWuLeeDominators();
+		$("#final_results").html(finalResultsStringWL);
+		$("#final_results").toggle(200);
 	});
+
+	$("#final_results").hide();
 
 });
