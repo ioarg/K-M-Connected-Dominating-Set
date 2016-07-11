@@ -4,7 +4,7 @@ We will also create a global network object from the
 joint.js elements, to be used in our algorithm file.
 */
 
-//Global scope ################################################################3
+//Global scope ################################################################
 
 //Some color globals
 var DEFAULTFILL = "#ddcc00";

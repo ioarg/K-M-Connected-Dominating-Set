@@ -106,6 +106,7 @@ function calculateWuLi(){
 		//Traverse the list of the dominators
 		var p=0;
 		var resetP = false;
+		var reducedNeighborSet; 
 
 		while( p<dominatorListWL.length){
 			console.log("Checking dominator : ", dominatorListWL[p]);
@@ -121,7 +122,13 @@ function calculateWuLi(){
 			//subset of the neighbors of that other dominator
 			for(var d=0; d<checkNodeList.length; d++){
 				otherDom = returnNodeById(checkNodeList[d]);
-				if(isSubsetOf(curNode.neighbors, otherDom.neighbors)){
+				//If you're checking for subsets, don't include in your neighborset the node you're checking against
+				//if he is your neighbor.Otherwise the subset comparison will check if the other node has himself
+				//as a neighbor, which will be always false.
+				reducedNeighborSet = curNode.neighbors.filter(function(index) { 
+					return index != checkNodeList[d];
+				});
+				if(isSubsetOf(reducedNeighborSet, otherDom.neighbors)){
 					if(curNode.id < otherDom.id){
 						curNode.dominator = false;
 						dominatorListWL = checkNodeList;
@@ -143,9 +150,76 @@ function calculateWuLi(){
 		}
 
 		finalResultsStringWL += "<p>Dominators after Rule 1 : " + dominatorListWL +"</p>";
-		//Rule 2 ================================================
 
-		
+		//Rule 2 ================================================
+		var g=0;
+		var resetG = false;
+		var curDom;
+		var domNeighbors;
+		var remainingDomNeighbors;
+		var unionSet;
+		var reducedChecklist;
+
+		console.log("Beginning WL Rule 2 ============>");
+		//Traverse the dominators list
+		while(g < dominatorListWL.length){
+			//get the current node
+			curDom = returnNodeById(dominatorListWL[g]);
+			console.log("Current dominator : ",curDom);
+			//get the dominator neighbors only
+			domNeighbors = curDom.neighbors.filter(function(index) {
+				return returnNodeById(index).dominator == true ;
+			});
+			console.log("Check against : ", domNeighbors);
+			//for each one of these neighbors
+			for(var n=0; n<domNeighbors.length; n++){
+				//get all the other neighbors
+				remainingDomNeighbors = domNeighbors.filter(function(index) {
+					return index != domNeighbors[n];
+				});
+				//and check if this one is connected with any one of the others
+				//if so, we must check if the union of their neighbor sets can
+				//contain all the neighbors of curDom
+				for(var t=0; t<remainingDomNeighbors.length; t++){
+					if(hasNeighbor( returnNodeById(domNeighbors[n]), remainingDomNeighbors[t]) ){
+						unionSet = _.union(returnNodeById(domNeighbors[n]).neighbors, 
+										   returnNodeById(remainingDomNeighbors[t]).neighbors );
+
+						console.log("United the sets of : ", domNeighbors[n], remainingDomNeighbors[t]);
+						console.log("Union result : ",unionSet);
+
+						//If you're checking for subsets, don't include in your neighborset the node you're checking against
+						//if he is your neighbor.Otherwise the subset comparison will check if the other node has himself
+						//as a neighbor, which will be always false.
+						reducedChecklist = curDom.neighbors.filter(function(index) {
+							return ( (index != domNeighbors[n]) && (index != remainingDomNeighbors[t]) );
+						});
+
+						if(isSubsetOf(reducedChecklist, unionSet) && (curDom.id<domNeighbors[n]) && (curDom.id < remainingDomNeighbors[t]) ){
+							curDom.dominator = false;
+							dominatorListWL = dominatorListWL.filter(function(index) {
+								return index != curDom.id;
+							});
+							resetG = true;
+							console.log("Node", curDom.id , " replaced by : ", domNeighbors[n], remainingDomNeighbors[t]);
+						}
+					}
+				}
+
+
+			}
+
+			if(resetG){
+				g=0;
+				resetG = false;
+			}
+			else{
+				g++;
+			}
+
+		}
+
+		finalResultsStringWL += "<p>Dominators after Rule 2 : " + dominatorListWL +"</p>";
 
 	}
 	else{
