@@ -4,7 +4,7 @@ We will also create a global network object from the
 joint.js elements, to be used in our algorithm file.
 */
 
-//Global variables to all files ############################################
+//Global scope ################################################################3
 
 //Some color globals
 var DEFAULTFILL = "#ddcc00";
@@ -27,7 +27,24 @@ var Network = function (){
 	this.nodes = [];
 } 
 
-var network = new Network();	//The Network object that holds all the network information
+var network = new Network();		//The Network object that holds all the network information
+var graph = new joint.dia.Graph;	//the main graph object
+var paper = new joint.dia.Paper({	//the main view panel 
+    el: $('#graph_panel'),
+    width: 800,
+    height: 700,
+    model: graph,
+    gridSize: 1
+});
+
+var usedIds = []; 									//A list of the used node ids so far
+var panelOffset = $("#graph_panel").offset();		//The offset of the panel from the document, for mouse events
+var addingNode = false; 							//If the add node button is active
+var removingNode = false;							//If the remoce node button is active
+var linkSelect1 = false;							//I'm in 'select first node' functionality while drawing a link (edge)
+var linkSelect2 = false;							//I'm in 'select second node' functionality while drawing a link
+var linkStart;										//Start node of the link
+var linkEnd; 										//End node of the link
 
 
 //Returns a node object from the network
@@ -48,31 +65,8 @@ function returnNodeById(search_id){
 //Local scope ################################################################
 $(document).ready(function(){
 
-	// Initialization =========================
-
-	var usedIds = []; 									//A list of the used node ids so far
-	var panelOffset = $("#graph_panel").offset();		//The offset of the panel from the document, for mouse events
-	var addingNode = false; 							//If the add node button is active
-	var removingNode = false;							//If the remoce node button is active
-	var linkSelect1 = false;							//I'm in 'select first node' functionality while drawing a link (edge)
-	var linkSelect2 = false;							//I'm in 'select second node' functionality while drawing a link
-	var linkStart;										//Start node of the link
-	var linkEnd; 										//End node of the link
-
 
 	//Graphics Management (with Joint Js) ================================================
-
-	//the main graph object
-	var graph = new joint.dia.Graph;
-
-	//the main view panel 
-    var paper = new joint.dia.Paper({
-        el: $('#graph_panel'),
-        width: 800,
-        height: 700,
-        model: graph,
-        gridSize: 1
-    });
 
     //Click on blank space of view callback (used for adding nodes to the point clicked)
     paper.on('blank:pointerclick',function(event){

@@ -2,9 +2,13 @@
 This file will handle the algorithm functionality. It will use the
 network object created in network_manager.js
 */
+
 var dominatorListWL = [];	//the dominators after Wu & Li's algorithm
 var dominatorListKM = [];	//the dominators after the K,M algorithm
-var finalResultsStringWL = "<p>Initially we use the Wu && Li algorithm to get a minimum CDS </p>";
+var finalResultsStringWL = "<p>Initially we use the Wu && Li algorithm to obtain a minimum CDS</p>";
+var k = -1;					//The k of the k,m connected problem
+var m = -1; 				//The m of the k,m connected problem
+
 
 //Returns true if the given node has a neighbor with the given id ======================
 function hasNeighbor(node, id){

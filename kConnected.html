@@ -6,10 +6,11 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <!-- Latest compiled and minified CSS -->
         <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css">
-        <link rel ="stylesheet" href ="Css/main_style.css">
         <link href='https://fonts.googleapis.com/css?family=Open+Sans' rel='stylesheet' type='text/css'>
+        <link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.4/themes/smoothness/jquery-ui.css">
         <!-- Joint js ============================= -->
         <link rel="stylesheet" type="text/css" href="Css/External/joint.css" />
+        <link rel ="stylesheet" href ="Css/main_style.css">
 	</head>
 	<body>
 		<div class="page-header text-center">
@@ -35,6 +36,7 @@
 					<div class="btn btn-default btn-primary" id="add_btn">Add Node <span class="glyphicon glyphicon-plus"></span></div>
 					<div class="btn btn-default btn-primary" id="rm_btn">Remove Node <span class="glyphicon glyphicon-remove"></span></div>
 					<div class="btn btn-default btn-primary" id="link_btn">Link Nodes <span class="glyphicon glyphicon-resize-small"></span></div>
+					<div class="btn btn-default btn-primary" id="clear_btn">Clear Graph</div>
 				</div>
 				<div class="well" id="graph_panel"></div>
 			</div>
@@ -42,19 +44,26 @@
 				<section>
 					<article>
 		  				<h3 class="underlined colored-heading">Algorithm Analysis</h3>
-						<h4>Calculate the <b class="text-info"> minimum (k,m) connected dominating set algorithm</b> based on the Namsu Ahn & Sungsoo Park paper</h4>
+						<h4>Calculate the <b class="text-info"> minimum (k,m) connected dominating set</b> of the network based on the Namsu Ahn & Sungsoo Park paper</h4>
 					</article>
 				</section>
+				<form>
+					Insert K : <input type="text" id="k_input"></input>
+					Insert M : <input type="text" id="m_input"></input>
+				</form>
 				<div class="btn-group" role="group">
-					<div class="btn btn-default btn-primary" >Network Topology</div>
 					<div class="btn btn-default btn-primary" id="results_btn" >Final Results</div>
 				</div>
 				<div class="well" id="final_results"></div>
 			</div>
 		</div>
+		<div id="k_m_alert" title="K or M input invalid">
+		  <p>Please isert a valid value for the K and M inputs</p>
+		</div>
 		<footer class="container-fluid text-center"><h5>Graphs made with jointjs <a href="http://jointjs.com/">http://jointjs.com/</a></h5></footer>
 	</body>
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.2/jquery.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.4/jquery.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.4/jquery-ui.min.js"></script>
     <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
     <script src="Model_Js/External/lodash.min.js"></script>
 	<script src="Model_Js/External/backbone-min.js"></script>
