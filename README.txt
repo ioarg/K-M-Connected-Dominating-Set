@@ -14,8 +14,8 @@ enter different k and m values.
 //Files explainded =========================
 
 Apart from the Css files, the functionality is divided in the Model_Js files and the View_Js.
-In the Model_Js we have the files that manage the backround stuff, like the construction of 
-the network and the algrotithms run on it. 
+In the Model_Js we have the files that manage the background stuff, like the construction of 
+the network and the algrorithms run on it. 
 In the View_Js files we have the management of the
 page view (apart from the graph view which is tied to the network construction in Model_Js).
 There are also external libary files in the 'External' folders.
