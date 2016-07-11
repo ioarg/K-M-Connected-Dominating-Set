@@ -74,6 +74,12 @@ $(document).ready(function() {
 		$(".btn").removeClass("btn_clicked");
 		$("#results_btn").addClass("btn_clicked");
 
+		finalResultsStringWL = "<p class=\"text-info\"><b>Initially we use the Wu && Li algorithm to get a minimum CDS</b></p>";
+		calculateWuLi();
+		paintWuLiDominators();
+		$("#final_results").html(finalResultsStringWL);
+		$("#final_results").show(200);
+
 		k = parseInt($("#k_input").val());
 		m = parseInt($("#m_input").val());
 		
@@ -81,11 +87,7 @@ $(document).ready(function() {
 			$("#k_m_alert").dialog("open");
 		}
 
-		finalResultsStringWL = "<p>Initially we use the Wu && Li algorithm to get a minimum CDS </p>";
-		calculateWuLi();
-		paintWuLiDominators();
-		$("#final_results").html(finalResultsStringWL);
-		$("#final_results").show(200);
+		
 	});
 
 	$("#clear_btn").click(function() {
