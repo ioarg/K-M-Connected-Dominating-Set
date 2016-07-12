@@ -6,9 +6,10 @@ joint.js elements, to be used in our algorithm file.
 
 //Global scope ################################################################
 
-//Some color globals
+//Some color globals used in our graph
 var DEFAULTFILL = "#ddcc00";
 var DOMINATORFILL = "#00dd00";
+var DOMINATOR_KM_FILL = "#00bb88";
 
 //Network Structure 
 //Node class
@@ -19,6 +20,7 @@ var Node = function (id_in, neighbors, graphic){
 	this.neighbors = neighbors;
 	this.graphic = graphic;
 	this.dominator = false;
+	this.preferedBy = 0; //will be used in the K,M algorithm only - usage best explained there
 }
 
 //The network class => an array of nodes

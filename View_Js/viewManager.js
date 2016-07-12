@@ -4,8 +4,10 @@ This file will be used to alter the view of the page
 
 $(document).ready(function() {
 	
+	var message; //result message of some algorithms
+
 	//Paint Wu & Li's step dominators ========================================
-	function paintWuLiDominators(){
+	function paintDominators(){
 		var tempNode;
 		
 		//paint every node with the initial color
@@ -21,6 +23,16 @@ $(document).ready(function() {
 				
 			}
 		}
+
+		if(dominatorListKM.length > 0 && message == "no_error"){
+			
+			for(var i=0; i< dominatorListKM.length; i++){
+				tempNode = returnNodeById(dominatorListKM[i]);
+				tempNode.graphic.attr({ circle: {fill: DOMINATOR_KM_FILL}});
+				
+			}
+		}
+
 	}
 
 
@@ -30,7 +42,7 @@ $(document).ready(function() {
 	$("#final_results").hide();
 	$("#k_m_alert").dialog({ 
 		resizable: false,
-      	height:160,
+      	height:200,
       	modal: true,
       	minWidth: 400,
       	autoOpen:false,
@@ -75,9 +87,11 @@ $(document).ready(function() {
 		$("#results_btn").addClass("btn_clicked");
 
 		finalResultsStringWL = "<p class=\"text-info\"><b>Initially we use the Wu && Li algorithm to get a minimum CDS</b></p>";
+		finalResultsStringKM = "<p class=\"text-info\"><b>K,M algorithm results</b></p>";
 		calculateWuLi();
-		paintWuLiDominators();
-		$("#final_results").html(finalResultsStringWL);
+		message = k_m_algorithm();
+		paintDominators();
+		$("#final_results").html(finalResultsStringWL+finalResultsStringKM);
 		$("#final_results").show(200);
 
 		k = parseInt($("#k_input").val());
@@ -97,6 +111,7 @@ $(document).ready(function() {
 		dominatorListWL = [];	//the dominators after Wu & Li's algorithm
 		dominatorListKM = [];	//the dominators after the K,M algorithm
 		finalResultsStringWL = "<p>Initially we use the Wu && Li algorithm to obtain a minimum CDS</p>";
+		finalResultsStringKM = "<p class=\"text-info\"><b>K,M algorithm results</b></p>";
 		k = -1;					//The k of the k,m connected problem
 		m = -1;
 		usedIds = []; 									
@@ -107,6 +122,7 @@ $(document).ready(function() {
 		linkSelect2 = false;							
 		linkStart = null;										
 		linkEnd = null; 	 
+		message = "";
 
 	});
 
