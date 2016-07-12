@@ -11,6 +11,13 @@ Then, based on the Ahn & Park process, it tries to expand that CDS to construct 
 CDS, if possible for the given k and m parameters. If not possible, it notifies the user to 
 enter different k and m values.
 
+The papers referenced above are:
+On Calculating Connected Dominating Set for Efficient Routing in Ad Hoc Wireless Networks
+Jie Wu and Hailan Li
+
+An optimization algorithm for the minimum k-connected m-dominating set problem in wireless sensor networks
+Namsu Ahn - Sungsoo Park
+
 //Files explainded =========================
 
 Apart from the Css files, the functionality is divided in the Model_Js files and the View_Js.
