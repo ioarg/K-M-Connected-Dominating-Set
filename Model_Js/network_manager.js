@@ -4,12 +4,10 @@ We will also create a global network object from the
 joint.js elements, to be used in our algorithm file.
 */
 
-//Global scope ################################################################
-
 //Some color globals used in our graph
-var DEFAULTFILL = "#ddcc00";
-var DOMINATORFILL = "#00dd00";
-var DOMINATOR_KM_FILL = "#00bb88";
+DEFAULTFILL = "#ddcc00";
+DOMINATOR_WL_FILL = "#00dd00";
+DOMINATOR_KM_FILL = "#00bb88";
 
 //Network Structure 
 //Node class
@@ -22,15 +20,13 @@ var Node = function (id_in, neighbors, graphic){
 	this.dominator = false;
 	this.preferedBy = 0; //will be used in the K,M algorithm only - usage best explained there
 }
-
 //The network class => an array of nodes
-
 var Network = function (){
 	this.nodes = [];
 } 
 
-var network = new Network();		//The Network object that holds all the network information
-var graph = new joint.dia.Graph;	//the main graph object
+network = new Network();			//The Network object that holds all the network information
+graph = new joint.dia.Graph;		//the main graph object
 var paper = new joint.dia.Paper({	//the main view panel 
     el: $('#graph_panel'),
     width: 800,
@@ -38,7 +34,6 @@ var paper = new joint.dia.Paper({	//the main view panel
     model: graph,
     gridSize: 1
 });
-
 var usedIds = []; 									//A list of the used node ids so far
 var panelOffset = $("#graph_panel").offset();		//The offset of the panel from the document, for mouse events
 var addingNode = false; 							//If the add node button is active
@@ -48,9 +43,8 @@ var linkSelect2 = false;							//I'm in 'select second node' functionality while
 var linkStart;										//Start node of the link
 var linkEnd; 										//End node of the link
 
-
 //Returns a node object from the network
-function returnNodeById(search_id){
+var returnNodeById = function(search_id){
  	if(network.nodes.length == 0){
  		console.log("Can't retrieve node from empty network");
  	}
@@ -64,8 +58,8 @@ function returnNodeById(search_id){
 	}
 }
 
-
-function returnNodeIndexById(search_id){
+//Return the index of a node with id = search_id
+var returnNodeIndexById = function(search_id){
 	if(network.nodes.length == 0){
  		console.log("Can't retrieve node from empty network");
  	}
@@ -79,20 +73,14 @@ function returnNodeIndexById(search_id){
 	}
 }
 
-//Local scope ################################################################
 $(document).ready(function(){
-
-
 	//Graphics Management (with Joint Js) ================================================
-
     //Click on blank space of view callback (used for adding nodes to the point clicked)
     paper.on('blank:pointerclick',function(event){
-
     	//if adding a node is enabled
     	if (addingNode){
     		console.log("adding new node ===========>");
     		var nodeID = calculateNewId();
-
 	  		//create the graphics shape at the position clicked
 	    	var circleShape = new joint.shapes.basic.Circle({
 	    		position: { x: event.pageX - panelOffset.left - 20, y: event.pageY - panelOffset.top - 20},
@@ -100,27 +88,21 @@ $(document).ready(function(){
 	    		attrs:{ circle: {fill: DEFAULTFILL}, text: { text : nodeID, fill : 'white'}},
 	    		prop:{ node_id : nodeID}
 	    	});
-
 	    	//stop adding/removing nodes if you moved one
 	    	circleShape.on("change:position",function(){
 	   			stopFunctionality("all");
 	    	});
-
 	    	//add the new shape to the graph
 	    	graph.addCell(circleShape);
-
 	    	//create the node in the network
 	    	var node = new Node( nodeID, [], circleShape);
 	    	network.nodes.push(node);
-
 	    	console.log(network);
 	    }
-
     });
 
     //Click on a node callbacks
     paper.on('cell:pointerclick', function(cellView, evt, x, y) { 
-
     	//if we are removing nodes ======
 		if (removingNode){
 			//get the id of the node
@@ -147,62 +129,47 @@ $(document).ready(function(){
 			*/
 			linkEnd = cellView.model;
 			linkSelect2 = false;
-
 			//update neighborhood for nodes
 			var shape1_node = returnNodeById(linkStart.attributes.prop["node_id"]);
 			var shape2_node = returnNodeById(linkEnd.attributes.prop["node_id"]);
-
 			shape1_node.neighbors.push(shape2_node.id);
 			shape2_node.neighbors.push(shape1_node.id);
 			console.log(network);
-
 			var link = new joint.dia.Link({
 		        source: { id: linkStart.id }, // graph model ids
 		        target: { id: linkEnd.id },
 		        prop:{ node1: shape1_node.id, node2: shape2_node.id } //network ids
 		    });
-
 			//add the edge to the graph
 			graph.addCell(link);
-
-
 			//return funcitonality to selecting the source of a link
 			linkSelect1 = true;
-		}
-	    
+		}    
 	});
  
  	//Callback to react to removing a link(edge) from the interface
  	graph.on('remove',function(cell){
-
  		if( (cell.attributes.type == "link") && !removingNode){
  			console.log("Remove link only -> selected ===========");
  			//get the source and target network ids
  			var id1 = cell.attributes.prop["node1"];
  			var id2 = cell.attributes.prop["node2"];
-
  			console.log(id1);
  			console.log(id2);
-
  			//get the network nodes with these ids
  			var networkNode1 = returnNodeById(id1);
  			var networkNode2 = returnNodeById(id2);
-
  			//update their neighborhoods
  			networkNode1.neighbors = networkNode1.neighbors.filter(function (el) {
  				return el != id2;
  			});
-
 			networkNode2.neighbors = networkNode2.neighbors.filter(function (el) {
  				return el != id1;
  			}); 			
-
  			console.log(network);
  		}
- 	});
- 	
+ 	});	
  	//Network stuff ==========================================================================
-
  	//Update the neighborhood of the removed node and its neighbors
  	function updateNeighborhoodOfRemoved(removed_shape_id){
  		console.log("removing the node ======================>", removed_shape_id);
@@ -223,7 +190,6 @@ $(document).ready(function(){
 				});
 			}
 		}
-
 		//remove the node from the network
 		network.nodes = network.nodes.filter(function (el) {
 			return el.id != removed_shape_id;
@@ -231,8 +197,7 @@ $(document).ready(function(){
 		//update the used ids list
 		usedIds = usedIds.filter(function(el){ 
 			return el != removed_shape_id; 
-		});
-			
+		});	
 		console.log("Used ids ", usedIds);
  	}
 
@@ -243,12 +208,10 @@ $(document).ready(function(){
  	*/
  	function calculateNewId(){
  		var newID = 0;
-    	var maxID = 0;
-    		
+    	var maxID = 0;	
     	if(usedIds.length != 0){
     		maxID = Math.max.apply(Math,usedIds);
     	}
-
 	  	//We set the new node's id. If an id is missing between min and max
 	  	//this will be the new id
 	  	for(var p=1; p<maxID; p++){
@@ -262,8 +225,7 @@ $(document).ready(function(){
 	  	if(newID == 0){
 	  		newID = maxID + 1;
 	  		//console.log("New max id : ", newID);
-	  	}
-	   	
+	  	}	   	
 	   	usedIds.push(newID);
 	   	console.log(usedIds);
 	   	return newID;
