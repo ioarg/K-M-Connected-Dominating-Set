@@ -16,7 +16,7 @@ var _hasNeighbor = function (node, id){
 	return false;
 }
 
-//checks if one list is a subset of the superSet
+//Checks if one list is a subset of the superSet
 //We asume that the lists contain numeric values only
 var _isSubsetOf = function(list, superSet){
 	var found;
@@ -55,7 +55,7 @@ var _implementWLStep1 = function(){
 				//Is j connected to all the other neighbor nodes?
 				tempNode = network.nodes[ returnNodeIndexById(network.nodes[i].neighbors[j])];
 				for(var k=0; k<neighborCheckList.length; k++){
-					if( !hasNeighbor(tempNode, neighborCheckList[k]) ){
+					if( !_hasNeighbor(tempNode, neighborCheckList[k]) ){
 						neighborsConnected = false;
 						console.log("The following neighbors are unconnected : ", tempNode.id, " , ", neighborCheckList[k]);
 						break;
@@ -103,7 +103,7 @@ var _implementWLRule1 = function(){
 			reducedNeighborSet = curNode.neighbors.filter(function(index) { 
 				return index != checkNodeList[d];
 			});
-			if(isSubsetOf(reducedNeighborSet, otherDom.neighbors)){
+			if(_isSubsetOf(reducedNeighborSet, otherDom.neighbors)){
 				if(curNode.id < otherDom.id){
 					network.nodes[returnNodeIndexById(curNode.id)].dominator = false;
 					dominatorListWL = checkNodeList;
@@ -122,7 +122,6 @@ var _implementWLRule1 = function(){
 		}
 	}
 	finalResultsStringWL += "<p>Dominators after Rule 1 : " + dominatorListWL +"</p>";
-	console.log("Network after WL Rule 1 ",network);
 }
 
 var _implementWLRule2 = function(){
@@ -154,7 +153,7 @@ var _implementWLRule2 = function(){
 			//if so, we must check if the union of their neighbor sets can
 			//contain all the neighbors of curDom
 			for(var t=0; t<remainingDomNeighbors.length; t++){
-				if(hasNeighbor( network.nodes[ returnNodeIndexById(domNeighbors[n])], remainingDomNeighbors[t]) ){
+				if(_hasNeighbor( network.nodes[ returnNodeIndexById(domNeighbors[n])], remainingDomNeighbors[t]) ){
 					unionSet = _.union(network.nodes[ returnNodeIndexById(domNeighbors[n])].neighbors, 
 									network.nodes[ returnNodeIndexById(remainingDomNeighbors[t])].neighbors );
 					console.log("United the sets of : ", domNeighbors[n], ",", remainingDomNeighbors[t]);
@@ -165,7 +164,7 @@ var _implementWLRule2 = function(){
 					reducedChecklist = curDom.neighbors.filter(function(index) {
 						return ( (index != domNeighbors[n]) && (index != remainingDomNeighbors[t]) );
 					});
-					if(isSubsetOf(reducedChecklist, unionSet) && (curDom.id<domNeighbors[n]) && (curDom.id < remainingDomNeighbors[t]) ){
+					if(_isSubsetOf(reducedChecklist, unionSet) && (curDom.id<domNeighbors[n]) && (curDom.id < remainingDomNeighbors[t]) ){
 						network.nodes[returnNodeIndexById(curDom.id)].dominator = false;
 						dominatorListWL = dominatorListWL.filter(function(index) {
 							return index != curDom.id;
@@ -184,7 +183,6 @@ var _implementWLRule2 = function(){
 		}
 	}//end while
 	finalResultsStringWL += "<p>Dominators after Rule 2 : " + dominatorListWL +"</p>";
-	console.log("Network after WL Rule 2 ",network);
 }
 
 /* 
@@ -193,7 +191,6 @@ CDS, but not k,m connected
 */
 var calculateWuLi = function(){
 	if(network.nodes.length > 2){	
-		console.log("The network ", network );
 		console.log("Beginning Wu & Li ===========>");
 		_implementWLStep1();
 		_implementWLRule1();
@@ -202,5 +199,4 @@ var calculateWuLi = function(){
 	else{
 		finalResultsStringWL = "<p>Network too small yet</p>";
 	}
-	console.log("Network after Wu&Li : ", network);
 }
