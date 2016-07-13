@@ -24,7 +24,7 @@ $(document).ready(function() {
 			}
 		}
 
-		if(dominatorListKM.length > 0 && message == "no_error"){
+		if( (dominatorListKM.length > 0) ){//&& (message == "no_error") ){
 			
 			for(var i=0; i< dominatorListKM.length; i++){
 				tempNode = returnNodeById(dominatorListKM[i]);
@@ -88,11 +88,6 @@ $(document).ready(function() {
 
 		finalResultsStringWL = "<p class=\"text-info\"><b>Initially we use the Wu && Li algorithm to get a minimum CDS</b></p>";
 		finalResultsStringKM = "<p class=\"text-info\"><b>K,M algorithm results</b></p>";
-		calculateWuLi();
-		message = k_m_algorithm();
-		paintDominators();
-		$("#final_results").html(finalResultsStringWL+finalResultsStringKM);
-		$("#final_results").show(200);
 
 		k = parseInt($("#k_input").val());
 		m = parseInt($("#m_input").val());
@@ -100,6 +95,12 @@ $(document).ready(function() {
 		if( isNaN(k) || isNaN(m) ){
 			$("#k_m_alert").dialog("open");
 		}
+
+		calculateWuLi();
+		message = k_m_algorithm();
+		paintDominators();
+		$("#final_results").html(finalResultsStringWL+finalResultsStringKM);
+		$("#final_results").show(200);
 
 		
 	});

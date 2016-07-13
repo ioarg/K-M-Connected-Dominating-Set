@@ -74,7 +74,7 @@ function calculateWuLi(){
 
 				if(neighborCheckList.length > 0){
 					//Is j connected to all the other neighbor nodes?
-					tempNode = returnNodeById(nodesArray[i].neighbors[j]);
+					tempNode = network.nodes[ returnNodeIndexById(nodesArray[i].neighbors[j])];
 					for(var k=0; k<neighborCheckList.length; k++){
 						if( !hasNeighbor(tempNode, neighborCheckList[k]) ){
 							neighborsConnected = false;
@@ -112,7 +112,7 @@ function calculateWuLi(){
 		while( p<dominatorListWL.length){
 			console.log("Checking dominator : ", dominatorListWL[p]);
 			//get the dominator node object
-			curNode = returnNodeById(dominatorListWL[p]);
+			curNode = network.nodes[returnNodeIndexById(dominatorListWL[p])];
 			//get the rest of the dominators
 			checkNodeList = dominatorListWL.filter(function(el){
 				return el != dominatorListWL[p];
@@ -122,7 +122,7 @@ function calculateWuLi(){
 			//for every other dominator, check if the neighbors of p are a
 			//subset of the neighbors of that other dominator
 			for(var d=0; d<checkNodeList.length; d++){
-				otherDom = returnNodeById(checkNodeList[d]);
+				otherDom = network.nodes[ returnNodeIndexById(checkNodeList[d])];
 				//If you're checking for subsets, don't include in your neighborset the node you're checking against
 				//if he is your neighbor.Otherwise the subset comparison will check if the other node has himself
 				//as a neighbor, which will be always false.
@@ -165,11 +165,11 @@ function calculateWuLi(){
 		//Traverse the dominators list
 		while(g < dominatorListWL.length){
 			//get the current node
-			curDom = returnNodeById(dominatorListWL[g]);
+			curDom = network.nodes[ returnNodeIndexById(dominatorListWL[g]) ];
 			console.log("Current dominator : ",curDom);
 			//get the dominator neighbors only
 			domNeighbors = curDom.neighbors.filter(function(index) {
-				return returnNodeById(index).dominator == true ;
+				return network.nodes[ returnNodeIndexById(index)].dominator == true ;
 			});
 			console.log("Check against : ", domNeighbors);
 			//for each one of these neighbors
@@ -182,11 +182,11 @@ function calculateWuLi(){
 				//if so, we must check if the union of their neighbor sets can
 				//contain all the neighbors of curDom
 				for(var t=0; t<remainingDomNeighbors.length; t++){
-					if(hasNeighbor( returnNodeById(domNeighbors[n]), remainingDomNeighbors[t]) ){
-						unionSet = _.union(returnNodeById(domNeighbors[n]).neighbors, 
-										   returnNodeById(remainingDomNeighbors[t]).neighbors );
+					if(hasNeighbor( network.nodes[ returnNodeIndexById(domNeighbors[n])], remainingDomNeighbors[t]) ){
+						unionSet = _.union(network.nodes[ returnNodeIndexById(domNeighbors[n])].neighbors, 
+										   network.nodes[ returnNodeIndexById(remainingDomNeighbors[t])].neighbors );
 
-						console.log("United the sets of : ", domNeighbors[n], remainingDomNeighbors[t]);
+						console.log("United the sets of : ", domNeighbors[n], ",", remainingDomNeighbors[t]);
 						console.log("Union result : ",unionSet);
 
 						//If you're checking for subsets, don't include in your neighborset the node you're checking against
@@ -202,7 +202,9 @@ function calculateWuLi(){
 								return index != curDom.id;
 							});
 							resetG = true;
-							console.log("Node", curDom.id , " replaced by : ", domNeighbors[n], remainingDomNeighbors[t]);
+							console.log("Node ", curDom.id , " replaced by : ", domNeighbors[n], ",",remainingDomNeighbors[t]);
+							console.log("Node ", curDom.id, " has dominator status : ", curDom.dominator);
+							console.log("Network now ", network );
 						}
 					}
 				}
@@ -227,6 +229,8 @@ function calculateWuLi(){
 		finalResultsStringWL = "<p>Network too small yet</p>";
 	}
 
+	console.log("Network after Wu&Li : ", network);
+
 }
 
 //K,M functionality =======================================================================
@@ -235,7 +239,7 @@ function returnAllDominatorIds(){
 	var list = [];
 
 	for(var i=0; i<network.nodes.length; i++){
-		if(!network.nodes[i].dominator){
+		if(network.nodes[i].dominator == true){
 			list.push(network.nodes[i].id);
 		}
 	}
@@ -247,7 +251,7 @@ function returnAllDominatorIds(){
 //If so, some algorithms should stop execution
 function areAllDominators(){
 	for(var i=0; i<network.nodes.length; i++){
-		if(!network.nodes[i].dominator){
+		if(network.nodes[i].dominator == false){
 			return false;
 		}
 	}
@@ -267,10 +271,12 @@ function isPConnected(node,p){
 	var countDoms = 0;
 
 	for(var i=0; i<node.neighbors.length; i++){
-		if(returnNodeById(node.neighbors[i]).dominator){
+		if(network.nodes[returnNodeIndexById(node.neighbors[i])].dominator == true){
 			countDoms ++;
 		}
 	}
+
+	console.log("counter of doms is : ", p);
 
 	if( countDoms == p){
 		return true;
@@ -292,16 +298,18 @@ function dominatorSetConnectivity(p, options){
 	}
 
 	console.log("Setting Connectivity ======>");
-	if(!areAllDominators()){
+	if( areAllDominators() == false ){
 
 		if(options == "d"){
+			console.log("Checking for dominators for connectivity : ",p);
 			list = network.nodes.filter(function(index) {
-				return (index.dominator == true) && (!isPConnected( index,p));
+				return (index.dominator == true) && ( isPConnected(index,p) == false );
 			});
 		}
 		else if(options == "n"){
+			console.log("Checking for dominatees for connectivity : ",p);
 			list = network.nodes.filter(function(index) {
-				return (index.dominator == false) && (!isPConnected( index,p));
+				return (index.dominator == false) && ( isPConnected(index,p) == false );
 			});
 		}
 
@@ -326,8 +334,8 @@ function dominatorSetConnectivity(p, options){
 				This property will show us how many other nodes from the list
 				have this dominatee as a neighbor. 
 				*/
-				if(!thisNode.neighbors[k].dominator){
-					returnNodeById(thisNode.neighbors[k]).preferedBy ++;
+				if(network.nodes[returnNodeIndexById(thisNode.neighbors[k])].dominator == false){
+					network.nodes[returnNodeIndexById(thisNode.neighbors[k])].preferedBy ++;
 				}
 			}
 		}
@@ -341,14 +349,11 @@ function dominatorSetConnectivity(p, options){
 		candidate = _.max( network.nodes, function(el){ return el.preferedBy;} );
 		console.log("Candidate : ", candidate);
 
-		/*if(!isFinite(candidate)){
-			return false;
-		}*/
-
 		//make this candidate dominator
 		candidate.dominator = true;
 		dominatorListKM.push(candidate.id);
 		console.log("New dominator : ", candidate.id);
+		console.log(network);
 	}
 
 	return false;
@@ -368,11 +373,13 @@ function k_m_algorithm(){
 		//first we try to make a minimum k-m network with only 
 		//constraints (5) of the Ahn-Park paper ===========================================
 		console.log("Constructing K,M only with constraint (5) ======>");
+		console.log("K : ",k," M : ",m);
 		domListBefore = returnAllDominatorIds();
 		domListAfter = [];
 
 		if(domListBefore != domListAfter){
 			domListBefore = returnAllDominatorIds(); 
+			console.log("Dominator List before: ", domListBefore);
 			result = dominatorSetConnectivity(k, "d");
 			if(!result){
 				message = "Cannot calculate with this K. Please give another value for K.";
@@ -384,14 +391,14 @@ function k_m_algorithm(){
 				//break;
 			}
 			domListAfter = returnAllDominatorIds();
+			console.log("Dominator List after: ", domListAfter);
 		}
 
 	}
-	else{
-		alert("Clear and re-enter K,M");
-	}
+	
 
 	finalResultsStringKM += "<p>Dominators after K,M : " + dominatorListKM +"</p>";
+	console.log("Message is : ", message);
 	return message;
 }
 

@@ -64,6 +64,21 @@ function returnNodeById(search_id){
 	}
 }
 
+
+function returnNodeIndexById(search_id){
+	if(network.nodes.length == 0){
+ 		console.log("Can't retrieve node from empty network");
+ 	}
+ 	else{
+ 		for(var i=0; i<network.nodes.length; i++){
+ 			if(network.nodes[i].id == search_id){
+ 				return i;
+ 			}
+ 		}
+ 		console.log("Searching for node by id unsuccesful");
+	}
+}
+
 //Local scope ################################################################
 $(document).ready(function(){
 
