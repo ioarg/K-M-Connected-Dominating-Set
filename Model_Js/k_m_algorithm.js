@@ -2,11 +2,10 @@
 This file will handle the K,M algorithm functionality. It will use the
 network object created in network_manager.js
 */
-
-dominatorListKM = [];	//the dominators after the K,M algorithm
-finalResultsStringKM = "<p class=\"text-info\"><b>K,M algorithm results</b></p>";
-k = -1;					//The k of the k,m connected problem
-m = -1; 				//The m of the k,m connected problem
+var dominatorListKM = [];	//the dominators after the K,M algorithm
+var finalResultsStringKM = "<p class=\"text-info\"><b>K,M algorithm results</b></p>";
+var k = -1;					//The k of the k,m connected problem
+var m = -1; 				//The m of the k,m connected problem
 
 //Return all the dominator nodes ids
 var _returnAllDominatorIds = function(){
@@ -45,8 +44,7 @@ var _isPConnected = function(node,p){
 			countDoms ++;
 		}
 	}
-	console.log("counter of doms is : ", p);
-	if( countDoms == p){
+	if( countDoms >= p){
 		return true;
 	}
 	return false;
@@ -63,17 +61,17 @@ var _dominatorSetConnectivity = function(p, options){
 		return false;
 	}
 	console.log("Setting Connectivity ======>");
-	if( _areAllDominators() == false ){
+	while( _areAllDominators() == false ){
 		if(options == "d"){
-			console.log("Checking for dominators for connectivity : ",p);
+			console.log("Checking the dominators for connectivity ",p);
 			list = network.nodes.filter(function(index) {
-				return (index.dominator == true) && ( isPConnected(index,p) == false );
+				return (index.dominator == true) && ( _isPConnected(index,p) == false );
 			});
 		}
 		else if(options == "n"){
-			console.log("Checking for dominatees for connectivity : ",p);
+			console.log("Checking the dominatees for connectivity ",p);
 			list = network.nodes.filter(function(index) {
-				return (index.dominator == false) && ( isPConnected(index,p) == false );
+				return (index.dominator == false) && ( _isPConnected(index,p) == false );
 			});
 		}
 		console.log("The list is now : ", list);
@@ -88,6 +86,10 @@ var _dominatorSetConnectivity = function(p, options){
 		for(var j=0; j<list.length; j++){
 			//take current node from the list
 			thisNode = list[j];
+			//if he has enough neighbors to make them dominators
+			if(thisNode.neighbors.length < p){
+				return false;
+			}
 			//for each one of his neighbors
 			for(var k=0; k<thisNode.neighbors.length; k++){
 				/*
@@ -109,10 +111,9 @@ var _dominatorSetConnectivity = function(p, options){
 		candidate = _.max( network.nodes, function(el){ return el.preferedBy;} );
 		console.log("Candidate : ", candidate);
 		//make this candidate dominator
-		candidate.dominator = true;
+		network.nodes[returnNodeIndexById(candidate.id)].dominator = true;
 		dominatorListKM.push(candidate.id);
 		console.log("New dominator : ", candidate.id);
-		console.log(network);
 	}
 	return false;
 }
@@ -130,26 +131,26 @@ function k_m_algorithm(){
 		console.log("Constructing K,M only with constraint (5) ======>");
 		console.log("K : ",k," M : ",m);
 		domListBefore = _returnAllDominatorIds();
-		domListAfter = [];
-		if(domListBefore != domListAfter){
+		domListAfter = [-1,-2];
+		while( _.difference(domListBefore, domListAfter).length != 0 ){
 			domListBefore = _returnAllDominatorIds(); 
 			console.log("Dominator List before: ", domListBefore);
 			result = _dominatorSetConnectivity(k, "d");
 			if(!result){
 				message = "Cannot calculate with this K. Please give another value for K.";
-				//break;
+				return message;
 			}
 			result = _dominatorSetConnectivity(m ,"n");
 			if(!result){
 				message = "Cannot calculate with this M. Please give another value for M.";
-				//break;
+				return message;
 			}
 			domListAfter = _returnAllDominatorIds();
 			console.log("Dominator List after: ", domListAfter);
 		}
 	}
-	finalResultsStringKM += "<p>Dominators after K,M : " + dominatorListKM +"</p>";
+	finalResultsStringKM += "<p>Extra dominators after K,M : " + dominatorListKM +"</p>";
+	finalResultsStringKM += "<p>All the dominators : "+ _returnAllDominatorIds() +"</p>"
 	console.log("Message is : ", message);
 	return message;
 }
-

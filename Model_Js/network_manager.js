@@ -5,9 +5,9 @@ joint.js elements, to be used in our algorithm file.
 */
 
 //Some color globals used in our graph
-DEFAULTFILL = "#ddcc00";
-DOMINATOR_WL_FILL = "#00dd00";
-DOMINATOR_KM_FILL = "#00bb88";
+var DEFAULTFILL = "#ddcc00";
+var DOMINATOR_WL_FILL = "#00dd00";
+var DOMINATOR_KM_FILL = "#00bb88";
 
 //Network Structure 
 //Node class
@@ -25,8 +25,8 @@ var Network = function (){
 	this.nodes = [];
 } 
 
-network = new Network();			//The Network object that holds all the network information
-graph = new joint.dia.Graph;		//the main graph object
+var network = new Network();			//The Network object that holds all the network information
+var graph = new joint.dia.Graph;		//the main graph object
 var paper = new joint.dia.Paper({	//the main view panel 
     el: $('#graph_panel'),
     width: 800,

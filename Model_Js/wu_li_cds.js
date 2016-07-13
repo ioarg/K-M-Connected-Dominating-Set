@@ -3,8 +3,8 @@ This file will contain the Wu&Li CDS algorithm
 implementation
 */
 
-dominatorListWL = [];	//the dominators after Wu & Li's algorithm
-finalResultsStringWL = "<p class=\"text-info\"><b>Initially we use the Wu && Li algorithm to obtain a minimum CDS</b></p>";
+var dominatorListWL = [];	//the dominators after Wu & Li's algorithm
+var finalResultsStringWL = "<p class=\"text-info\"><b>Initially we use the Wu && Li algorithm to obtain a minimum CDS</b></p>";
 
 //Returns true if the given node has a neighbor with the given id 
 var _hasNeighbor = function (node, id){
