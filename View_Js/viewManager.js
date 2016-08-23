@@ -27,7 +27,7 @@ $(document).ready(function() {
 		dominatorListKM = [];	
 		finalResultsStringWL = "<p class=\"text-info\"><b>Initially we use the Wu && Li algorithm to obtain a minimum CDS</b></p>";
 		finalResultsStringKM = "<p class=\"text-info\"><b>K,M algorithm results</b></p>";
-		debugPathString = "<p class=\"text-info\"><b>Debugging paths string</b></p>";
+		debugPathString = "<p class=\"text-info\"><b>Debugging paths string ########</b></p>";
 		pathList = [];
 		k = -1;					//The k of the k,m connected problem
 		m = -1;											
@@ -35,7 +35,7 @@ $(document).ready(function() {
 	}
 
 	//Paint dominators ========================================
-	function paintDominators(){
+	function _paintDominators(){
 		var tempNode;	
 		for(var j=0; j<network.nodes.length; j++){
 			network.nodes[j].graphic.attr({ circle: {fill: DEFAULTFILL}});
@@ -110,7 +110,7 @@ $(document).ready(function() {
 			$("#dialogText").text(message);
 			$("#k_m_alert").dialog("open");
 		}
-		paintDominators();
+		_paintDominators();
 		if(!PATHS_DEBUGGING){
 			$("#final_results").html(finalResultsStringWL+finalResultsStringKM);
 		}

@@ -3,7 +3,7 @@ and a destination node t. After that it will try to obtain a minimum vertex cut
 that disconnects the given graph.
 */
 var PATHS_DEBUGGING = true;
-var debugPathString = "<p class=\"text-info\"><b>Debugging paths string</b></p>";
+var debugPathString = "<p class=\"text-info\"><b>Debugging paths string ########</b></p>";
 
 var Path = function(){
 	vertices = [];
@@ -104,6 +104,31 @@ function _copyPathList(list){
 	newList = JSON.parse(JSON.stringify(list));
 	return newList;
 }
+
+//locates a path in given list and returns an index to it
+function _returnPathIndex(list, path){
+	var list1;
+	var list2;
+	var difference;
+	var index = -1;
+	list2 = path["vertices"].slice();
+	for(var i=0; i< list.length; i++){
+		list1 = list[i]["vertices"].slice();
+		if(list1.length == list2.length){
+			difference = false;
+			for(var k=0; k<list1.length; k++){
+				if(list1[k] != list2[k]){
+					difference = true;
+					break;
+				}
+			}
+			if(!difference){
+				index = i;
+			}
+		}
+	}
+	return index;
+}
 //Constructs the paths until all are complete - Finds all possible paths
 //avoiding cycles
 function _constructPaths(destination){
@@ -113,6 +138,9 @@ function _constructPaths(destination){
 	var tempPath;
 	while(!_pathsComplete()){
 		pathList2 = _copyPathList(pathList);
+		if(PATHS_DEBUGGING){
+			debugPathString += "<p>Inside while ...</p>";
+		}
 		//for every path
 		for(var i=0; i < pathList.length; i++){
 			if(pathList[i].complete == 0){
@@ -121,10 +149,12 @@ function _constructPaths(destination){
 				//give me the neighbors of this vertex that are not already in the path -> avoid cycles
 				newPaths = _.difference(_getDominatorNeighbors(vertex), pathList[i].vertices);
 				if( (newPaths.length == 0) || (vertex == destination.id) ){
-					pathList2[i].complete = 1;
+					//Find the appropriate path - Due to adding/removing paths the order of paths might have changed
+					//so we need to make sure we get the correct path 
+					pathList2[ _returnPathIndex(pathList2, pathList[i]) ].complete = 1;
 					//Debugging code only inside following if() #####
 					if(PATHS_DEBUGGING){
-						debugPathString += "<p>Path complete</p>";
+						debugPathString += "<p>Path end - nowhere to go, the vertex was "+vertex+"</p>";
 					}
 				}
 				else{ //the path hasn't ended yet
@@ -134,6 +164,10 @@ function _constructPaths(destination){
 						tempPath.vertices.push(newPaths[j]);
 						if(newPaths[j] == destination.id){
 							tempPath.complete = 1;
+							//Debugging code only inside following if() #####
+							if(PATHS_DEBUGGING){
+								debugPathString += "<p>Path made complete with the following vertex!</p>";
+							}
 						}
 						else{
 							tempPath.complete = 0;
@@ -238,14 +272,13 @@ function runPathFinding(start, destination){
 	_initializePathfinding(start, destination);
 	//Debugging code only inside following if() #####
 	if(PATHS_DEBUGGING){
-		 debugPathString +="<p>_constructPaths() debugging ......</p>"; 
+		 debugPathString +="<p>Debugging _constructPaths() ......</p>"; 
 	}
 	_constructPaths(destination);
 	//Debugging code only inside following if() #####
 	if(PATHS_DEBUGGING){
 		debugPathString += "All possible paths found .....";
 		_printPathsFound();
-		debugPathString += "<p>End Step =======================</p>";
 	}
 	console.log("pathList : ", pathList);
 	/*pathList = _keepDestinationPaths(destination);
