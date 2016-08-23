@@ -34,7 +34,6 @@ function _getDominatorNeighbors(id){
 function _initializePathfinding(start, destination){
 	var path;
 	var domNeighbors;
-	pathList = []; //reinitialize pathList
 	domNeighbors = _getDominatorNeighbors(start.id);
 	//for every neighbor of the start node make a new path
 	for(var i=0; i< domNeighbors.length; i++){
@@ -102,15 +101,7 @@ function _removePath(list, path){
 function _copyPathList(list){
 	var tempPath;
 	var newList = [];
-	/*
-	for(var i=0; i < list.length; i++){
-		tempPath = new Path();
-		tempPath.vertices = list[i].vertices.slice();
-		tempPath.complete = list[i].complete;
-		newList.push(tempPath);
-	}*/
 	newList = JSON.parse(JSON.stringify(list));
-	console.log("New list : ", newList);
 	return newList;
 }
 //Constructs the paths until all are complete - Finds all possible paths
@@ -131,6 +122,10 @@ function _constructPaths(destination){
 				newPaths = _.difference(_getDominatorNeighbors(vertex), pathList[i].vertices);
 				if( (newPaths.length == 0) || (vertex == destination.id) ){
 					pathList2[i].complete = 1;
+					//Debugging code only inside following if() #####
+					if(PATHS_DEBUGGING){
+						debugPathString += "<p>Path complete</p>";
+					}
 				}
 				else{ //the path hasn't ended yet
 					for(var j=0; j < newPaths.length; j++){
@@ -140,7 +135,14 @@ function _constructPaths(destination){
 						if(newPaths[j] == destination.id){
 							tempPath.complete = 1;
 						}
+						else{
+							tempPath.complete = 0;
+						}
 						pathList2.push(tempPath);
+						//Debugging code only inside following if() #####
+						if(PATHS_DEBUGGING){
+							debugPathString += "<p>Added vertex " + newPaths[j] + "</p>";
+						}
 					}
 					pathList2 = _removePath(pathList2, pathList[i]);
 				}
@@ -149,6 +151,21 @@ function _constructPaths(destination){
 		}
 		pathList = _copyPathList(pathList2); //update pathList with the new paths
 	}
+}
+
+//From all the paths found,, keep the ones that end to the destination
+function _keepDestinationPaths(destination){
+	var newList = [];
+	var newPath;
+	pathList.forEach(function(elem){
+		if(elem["vertices"][elem["vertices"].length - 1] == destination.id){
+			newPath = new Path();
+			newPath.vertices = elem["vertices"].slice();
+			newPath.complete = elem["complete"];
+			newList.push(newPath);
+		}
+	});
+	return newList;
 }
 
 function _returnFirstCommonVertex(path1, path2){
@@ -215,15 +232,33 @@ function _printPathsFound(){
 //Runs the pathfinding algorithm 
 function runPathFinding(start, destination){
 	var vertexCut;
+	pathList = []; //reinitialize pathList
 	//find all the paths between start and destination
-	debugPathString += "<p>Starting pathfinding between "+start.id+" and "+destination.id+"</p>";
+	debugPathString += "<p>Starting pathfinding between "+start.id+" and "+destination.id+" =========></p>";
 	_initializePathfinding(start, destination);
-	_constructPaths(destination);
-	//vertexCut = _obtainMinimumVertexCut();
-	//use only for debugging ###
+	//Debugging code only inside following if() #####
 	if(PATHS_DEBUGGING){
+		 debugPathString +="<p>_constructPaths() debugging ......</p>"; 
+	}
+	_constructPaths(destination);
+	//Debugging code only inside following if() #####
+	if(PATHS_DEBUGGING){
+		debugPathString += "All possible paths found .....";
 		_printPathsFound();
-		//debugPathString += "<p>Vertex Cut =>"+ vertexCut +"</p>";
 		debugPathString += "<p>End Step =======================</p>";
 	}
+	console.log("pathList : ", pathList);
+	/*pathList = _keepDestinationPaths(destination);
+	//Debugging code only inside following if() #####
+	if(PATHS_DEBUGGING){
+		debugPathString += "Paths from start to destination ////";
+		_printPathsFound();
+		
+		debugPathString += "<p>End Step =======================</p>";
+	}*/
+	/*vertexCut = _obtainMinimumVertexCut();
+	//Debugging code only inside following if() #####
+	if(PATHS_DEBUGGING){
+		debugPathString += "<p>Vertex Cut =>"+ vertexCut +"</p>";
+	}*/
 }

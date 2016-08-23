@@ -51,7 +51,7 @@ ul{
 
 
 #right_panel{
-	width:400px;
+	width:480px;
 	height: 1000px;
 	margin-left: 20px;
 	box-shadow: -2px 0px 0px #dddddd;
@@ -112,7 +112,10 @@ input{
 	margin-right:10px;
 }
 
-
+#final_results{
+	overflow-y: scroll;
+	height: 750px;
+}
 /* joint js disable link tools ====================== */
 .link-tools .tool-remove { display: none; }
 .link-tools .tool-options { display: none; }
