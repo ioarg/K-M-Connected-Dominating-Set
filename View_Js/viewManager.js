@@ -3,11 +3,11 @@ This file will be used to alter the view of the page
 */
 $(document).ready(function() {	
 	var message; //result message of some algorithms
-	//Reset everything
-	var _clearAll = function(options){
+	//Reset everything ###################
+	function _clearAll(options){
 		if(options == "all"){
 			graph.clear();
-			network = [];
+			network.nodes = [];
 			usedIds = []; 
 			panelOffset = $("#graph_panel").offset();
 			addingNode = false; 							
@@ -17,23 +17,26 @@ $(document).ready(function() {
 			linkStart = null;										
 			linkEnd = null; 	 
 		}
-		for(var i=0; i<network.nodes.length; i++){
-			network.nodes[i].dominator = false;
-			network.nodes[i].preferedBy = 0;
+		else{
+			for(var i=0; i<network.nodes.length; i++){
+				network.nodes[i].dominator = false;
+				network.nodes[i].preferedBy = 0;
+			}
 		}
-		dominatorListWL = [];	//the dominators after Wu & Li's algorithm
-		dominatorListKM = [];	//the dominators after the K,M algorithm
+		dominatorListWL = [];	
+		dominatorListKM = [];	
 		finalResultsStringWL = "<p class=\"text-info\"><b>Initially we use the Wu && Li algorithm to obtain a minimum CDS</b></p>";
 		finalResultsStringKM = "<p class=\"text-info\"><b>K,M algorithm results</b></p>";
+		debugPathString = "<p class=\"text-info\"><b>Debugging paths string</b></p>";
+		pathList = [];
 		k = -1;					//The k of the k,m connected problem
 		m = -1;											
 		message = "";
 	}
 
-	//Paint Wu & Li's step dominators ========================================
+	//Paint dominators ========================================
 	function paintDominators(){
 		var tempNode;	
-		//paint every node with the initial color
 		for(var j=0; j<network.nodes.length; j++){
 			network.nodes[j].graphic.attr({ circle: {fill: DEFAULTFILL}});
 		}
@@ -108,7 +111,12 @@ $(document).ready(function() {
 			$("#k_m_alert").dialog("open");
 		}
 		paintDominators();
-		$("#final_results").html(finalResultsStringWL+finalResultsStringKM);
+		if(!PATHS_DEBUGGING){
+			$("#final_results").html(finalResultsStringWL+finalResultsStringKM);
+		}
+		else{
+			$("#final_results").html(finalResultsStringWL+finalResultsStringKM+debugPathString);
+		}
 		$("#final_results").show(200);	
 	});
 

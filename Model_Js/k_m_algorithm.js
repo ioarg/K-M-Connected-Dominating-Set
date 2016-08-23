@@ -118,9 +118,7 @@ var _dominatorSetConnectivity = function(p, options){
 	return false;
 }
 
-//The basic K,M algorithm
-function k_m_algorithm(){
-	var formulation = {constraint3: false, constraint8: false};
+function _solveConstraint5(){
 	var domListBefore;
 	var domListAfter;
 	var result;
@@ -150,7 +148,37 @@ function k_m_algorithm(){
 		}
 	}
 	finalResultsStringKM += "<p>Extra dominators after K,M : " + dominatorListKM +"</p>";
-	finalResultsStringKM += "<p>All the dominators : "+ _returnAllDominatorIds() +"</p>"
+	finalResultsStringKM += "<p>All the dominators : "+ _returnAllDominatorIds() +"</p>";
+	return message;
+}
+
+//The basic K,M algorithm
+function k_m_algorithm(){
+	var formulation = {constraint3: true, constraint8: false};
+	var dominatorListAll;
+	var node1;
+	var node2;
+	var message = "no_error";
+	//solve constraint 5 ==================
+	_solveConstraint5();
 	console.log("Message is : ", message);
+	if(message != "no_error"){
+		return message;
+	}
+	/*If constraint (5) is solved succesfully and (3) is enabled calculate step 4 of the algorithm. =========
+	For every two dominators find all the paths between them and get
+	a minimum vertex cut. Then check if the cut satisfies constraint (3).
+	*/
+	if(formulation.constraint3){
+		dominatorListAll = _.union(dominatorListKM,dominatorListWL);
+		for(var i=0; i<(dominatorListAll.length-1); i++){
+			for(var j=(i+1); j<dominatorListAll.length; j++){
+				node1 = returnNodeById(dominatorListAll[i]);
+				node2 = returnNodeById(dominatorListAll[j]);
+				runPathFinding(node1, node2);
+			}
+		}
+	}
+
 	return message;
 }

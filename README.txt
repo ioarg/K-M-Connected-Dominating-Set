@@ -3,7 +3,7 @@ Calculation Of Minimum Sized (k,m) Connected Dominating Set (CDS)
 //Purpose of software ============================
 
 This software uses the algorithm of Wu & Li and the process of the Namsu Ahn & Sungsoo Park 
-paper to construct a minimum sized Connected Dominating Set. The k parameter means that every 
+paper to construct a minimum sized (k,m) Connected Dominating Set. The k parameter means that every 
 dominator has at least k dominator neighbors and the m parameter means that every dominatee 
 has at least m dominator neighbors.
 After the network construction, it uses the Wu & Li algorithm to calculate a minimum sized CDS. 
@@ -36,8 +36,14 @@ as a graph displayed inside a view and the network global variable which contain
 Every interaction with the graph view is handled here and NOT in the viewManager.js, because it is tied
 to the update of the network information.
 
-algorithm.js : uses the network constructed by the network_manager.js to run the algorithms described
-above.
+wu_li_cds: uses the Wu&Li algorithm to costruct a minimum Connected Dominating Set 
+on the network constructed by the network_manager.js.
+
+k_m_algorithm.js : runs an algorithm on the network based on the Namsu Ahn - Sungsoo Park paper,
+to extend it to a minimum (k,m) CDS.
+
+pathfinding.js : used for finding all the paths between two nodes on the dominator subgraph and then
+calculates a minimum vertex cut, which is required by the Ahn-Park algorithm.
 
 viewManager.js : it handles some button and page view functionality, along with painting the dominator 
 nodes after the algorithms finish their execution.
