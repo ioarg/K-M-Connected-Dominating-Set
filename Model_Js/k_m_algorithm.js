@@ -152,6 +152,17 @@ function _solveConstraint5(){
 	return message;
 }
 
+//Rerturns the minimum connectivity = the minimum number of neighbors a node has
+function _findMinimumConnectivity(){
+	var minimum = network.nodes[0].neighbors.length;
+	for(var i=1; i<network.nodes.length; i++){
+		if(network.nodes[i].neighbors.length < minimum){
+			minimum = network.nodes[i].neighbors.length;
+		}
+	}
+	return minimum;
+}
+
 //The basic K,M algorithm
 function k_m_algorithm(){
 	var formulation = {constraint3: true, constraint8: false};
@@ -159,13 +170,21 @@ function k_m_algorithm(){
 	var node1;
 	var node2;
 	var message = "no_error";
-	//solve constraint 5 ==================
+	var maximum;
+	//Check if it is possible to achieve K,M conectivity with the given values
+	maximum = _findMinimumConnectivity();
+	if((k > maximum) || (m > maximum)){
+		message = "Make sure both K and M are <= " + maximum;
+		return message;
+	}
+	//Solve constraint 5 ...........
 	_solveConstraint5();
 	console.log("Message is : ", message);
 	if(message != "no_error"){
 		return message;
 	}
-	/*If constraint (5) is solved succesfully and (3) is enabled calculate step 4 of the algorithm. =========
+	/*Calculate step 4 ..........
+	If constraint (5) is solved succesfully and (3) is enabled calculate step 4 of the algorithm.
 	For every two dominators find all the paths between them and get
 	a minimum vertex cut. Then check if the cut satisfies constraint (3).
 	*/

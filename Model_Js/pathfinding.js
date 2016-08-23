@@ -138,9 +138,6 @@ function _constructPaths(destination){
 	var tempPath;
 	while(!_pathsComplete()){
 		pathList2 = _copyPathList(pathList);
-		if(PATHS_DEBUGGING){
-			debugPathString += "<p>Inside while ...</p>";
-		}
 		//for every path
 		for(var i=0; i < pathList.length; i++){
 			if(pathList[i].complete == 0){
@@ -152,10 +149,10 @@ function _constructPaths(destination){
 					//Find the appropriate path - Due to adding/removing paths the order of paths might have changed
 					//so we need to make sure we get the correct path 
 					pathList2[ _returnPathIndex(pathList2, pathList[i]) ].complete = 1;
-					//Debugging code only inside following if() #####
+				/*	//Debugging code only inside following if() #####
 					if(PATHS_DEBUGGING){
 						debugPathString += "<p>Path end - nowhere to go, the vertex was "+vertex+"</p>";
-					}
+					}*/
 				}
 				else{ //the path hasn't ended yet
 					for(var j=0; j < newPaths.length; j++){
@@ -164,19 +161,15 @@ function _constructPaths(destination){
 						tempPath.vertices.push(newPaths[j]);
 						if(newPaths[j] == destination.id){
 							tempPath.complete = 1;
-							//Debugging code only inside following if() #####
-							if(PATHS_DEBUGGING){
-								debugPathString += "<p>Path made complete with the following vertex!</p>";
-							}
 						}
 						else{
 							tempPath.complete = 0;
 						}
 						pathList2.push(tempPath);
-						//Debugging code only inside following if() #####
+						/*//Debugging code only inside following if() #####
 						if(PATHS_DEBUGGING){
 							debugPathString += "<p>Added vertex " + newPaths[j] + "</p>";
-						}
+						}*/
 					}
 					pathList2 = _removePath(pathList2, pathList[i]);
 				}
@@ -205,45 +198,44 @@ function _keepDestinationPaths(destination){
 function _returnFirstCommonVertex(path1, path2){
 	var tempList;
 	tempList = _.intersection(path1["vertices"], path2["vertices"]);
-	if (tempList.length > 0){
-		return tempList[0];
+	if (tempList.length > 2){//without start and end
+		return tempList[1];
 	}
 	return false;
 }
 
 //Obtain a minimum vertex cut using the paths found from the function above
-function _obtainMinimumVertexCut(){
+function _obtainMinimumVertexCut(destination){
 	var vertexCut = [];
 	var firstVertex;
-	var jointPathList = [];
-	var disjointPathList = [];
+	var jointPathsIndexes = [];
+	var disjointPathsIndexes = [];
 	var disjoint = true; //is the path disjoint from the others?
+	var tempPath;
 	//check every two paths for common vertices
 	for(var i=0; i<(pathList.length-1); i++){
 		for(var j=(i+1); j<pathList.length; j++){
 			//if they have common vertices, add the first one to the cut
 			firstVertex = _returnFirstCommonVertex(pathList[i],pathList[j]);
-			if(!firstVertex){
+			if(firstVertex != false){
 				vertexCut.push(firstVertex);
-				jointPathList.push(pathList[j]);
+				jointPathsIndexes.push(j);
 				disjoint = false;
 			}
 		}
 		//it might insert a path more than once but that doesn't matter
-		//because of the difference function we use below
+		//because of the _.uniq() function we use below
 		if(!disjoint){
-			jointPathList.push(pathList[i]);
+			jointPathsIndexes.push(i);
 			disjoint = true;
 		}
 	}
-	//Get the disjoint paths that are left and add their first vertex to the cut
-	//disjointPathList = _.difference(pathList, jointPathList);
-	/*for(var m=0; m<){
-
-	}
-	for(var k=0; k<disjointPathList.length; k++){
-		vertexCut.push(disjointPathList[k][0]);
-	}*/
+	jointPathsIndexes = _.uniq(jointPathsIndexes);
+	disjointPathsIndexes = _.difference( _.range(pathList.length), jointPathsIndexes);
+	disjointPathsIndexes.forEach(function(elem){
+		vertexCut.push(pathList[elem].vertices[1]); //we kept the start node so we need the next vertex => vertices[1]
+	});
+	vertexCut = _.uniq(vertexCut);
 	return vertexCut;
 }
 
@@ -270,10 +262,6 @@ function runPathFinding(start, destination){
 	//find all the paths between start and destination
 	debugPathString += "<p>Starting pathfinding between "+start.id+" and "+destination.id+" =========></p>";
 	_initializePathfinding(start, destination);
-	//Debugging code only inside following if() #####
-	if(PATHS_DEBUGGING){
-		 debugPathString +="<p>Debugging _constructPaths() ......</p>"; 
-	}
 	_constructPaths(destination);
 	//Debugging code only inside following if() #####
 	if(PATHS_DEBUGGING){
@@ -281,17 +269,19 @@ function runPathFinding(start, destination){
 		_printPathsFound();
 	}
 	console.log("pathList : ", pathList);
-	/*pathList = _keepDestinationPaths(destination);
+	pathList = _keepDestinationPaths(destination);
 	//Debugging code only inside following if() #####
 	if(PATHS_DEBUGGING){
-		debugPathString += "Paths from start to destination ////";
+		debugPathString += "Paths from start to destination ....";
 		_printPathsFound();
-		
-		debugPathString += "<p>End Step =======================</p>";
-	}*/
-	/*vertexCut = _obtainMinimumVertexCut();
+	}
+	vertexCut = _obtainMinimumVertexCut(destination);
 	//Debugging code only inside following if() #####
 	if(PATHS_DEBUGGING){
-		debugPathString += "<p>Vertex Cut =>"+ vertexCut +"</p>";
-	}*/
+		debugPathString += "<p>Vertex Cut => [ ";
+		for(var l=0; l<vertexCut.length; l++){
+			debugPathString += vertexCut[l] + " ";
+		}
+		debugPathString += "]</p>";
+	}
 }
