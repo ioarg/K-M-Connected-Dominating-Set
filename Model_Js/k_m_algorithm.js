@@ -58,27 +58,27 @@ var _dominatorSetConnectivity = function(p, options){
 	var candidate;
 	var list = []; //the list of nodes that we want to make p connected
 	if(options != "d" && options != "n"){
-		return false;
+		return "Option unsupported in  _dominatorSetConnectivity()";
 	}
-	console.log("Setting Connectivity ======>");
+	//console.log("Setting Connectivity ======>");
 	while( _areAllDominators() == false ){
 		if(options == "d"){
-			console.log("Checking the dominators for connectivity ",p);
+			//console.log("Checking the dominators for connectivity ",p);
 			list = network.nodes.filter(function(index) {
 				return (index.dominator == true) && ( _isPConnected(index,p) == false );
 			});
 		}
 		else if(options == "n"){
-			console.log("Checking the dominatees for connectivity ",p);
+			//console.log("Checking the dominatees for connectivity ",p);
 			list = network.nodes.filter(function(index) {
 				return (index.dominator == false) && ( _isPConnected(index,p) == false );
 			});
 		}
-		console.log("The list is now : ", list);
+		//console.log("The list is now : ", list);
 		//we have succeded
 		if(list.length == 0){
-			console.log("Connectivity success $$$$$$$$");
-			return true;
+			//console.log("Connectivity success $$$$$$$$");
+			return "success";
 		}
 		//Reset all the preference values changed in previous invokations
 		_resetAllPreferance();
@@ -88,7 +88,12 @@ var _dominatorSetConnectivity = function(p, options){
 			thisNode = list[j];
 			//if he has enough neighbors to make them dominators
 			if(thisNode.neighbors.length < p){
-				return false;
+				if(thisNode.dominator){
+					return "Could not continue. Not enough neighbors for node "+ thisNode.id + " . Try a different value for K.";
+				}
+				else{
+					return "Could not continue. Not enough neighbors for node "+ thisNode.id + " . Try a different value for M.";
+				}
 			}
 			//for each one of his neighbors
 			for(var k=0; k<thisNode.neighbors.length; k++){
@@ -115,89 +120,100 @@ var _dominatorSetConnectivity = function(p, options){
 		dominatorListKM.push(candidate.id);
 		console.log("New dominator : ", candidate.id);
 	}
-	return false;
+	return "Could not succeed with these K and M parameters. Please try with different values";
 }
 
 function _solveConstraint5(){
 	var domListBefore;
 	var domListAfter;
 	var result;
-	var message = "no_error";
 	if( k>0 && m>0){
-		//first we try to make a minimum k-m network with only 
-		//constraints (5) of the Ahn-Park paper ===========================================
-		console.log("Constructing K,M only with constraint (5) ======>");
-		console.log("K : ",k," M : ",m);
+		/*console.log("Constructing K,M only with constraint (5) ======>");
+		  console.log("K : ",k," M : ",m); */
 		domListBefore = _returnAllDominatorIds();
 		domListAfter = [-1,-2];
 		while( _.difference(domListBefore, domListAfter).length != 0 ){
 			domListBefore = _returnAllDominatorIds(); 
-			console.log("Dominator List before: ", domListBefore);
+			//console.log("Dominator List before: ", domListBefore);
 			result = _dominatorSetConnectivity(k, "d");
-			if(!result){
-				message = "Cannot calculate with this K. Please give another value for K.";
-				return message;
+			if(result != "success"){
+				return result;
 			}
 			result = _dominatorSetConnectivity(m ,"n");
-			if(!result){
-				message = "Cannot calculate with this M. Please give another value for M.";
-				return message;
+			if(result != "success"){
+				return result;
 			}
 			domListAfter = _returnAllDominatorIds();
-			console.log("Dominator List after: ", domListAfter);
+			//console.log("Dominator List after: ", domListAfter);
 		}
 	}
 	finalResultsStringKM += "<p>Extra dominators after K,M : " + dominatorListKM +"</p>";
 	finalResultsStringKM += "<p>All the dominators : "+ _returnAllDominatorIds() +"</p>";
-	return message;
+	return "no_error";
 }
 
 //Rerturns the minimum connectivity = the minimum number of neighbors a node has
-function _findMinimumConnectivity(){
-	var minimum = network.nodes[0].neighbors.length;
-	for(var i=1; i<network.nodes.length; i++){
-		if(network.nodes[i].neighbors.length < minimum){
-			minimum = network.nodes[i].neighbors.length;
+function _check_K_M_Connectivity(vertexCut){
+	var node;
+	var tempNode;
+	var count;
+	for(var i=0; i<vertexCut.length; i++){
+		node = returnNodeById(vertexCut[i]);
+		count = 0;		
+		for(var j=0; j<node.neighbors.length; j++){
+			tempNode = returnNodeById(node.neighbors[j]);
+			if(tempNode.dominator){
+				count ++;
+			}
+		}
+		if(node.dominator && (count < k)){
+			return "Constraint (3) failed on dominator node " + node.id + " ."; 
+		}
+		else if ((!node.dominator) && (count < m)){
+			return "Constraint (3) failed on dominatee node " + node.id + " .";
 		}
 	}
-	return minimum;
+	return "success";
 }
 
 //The basic K,M algorithm
 function k_m_algorithm(){
-	var formulation = {constraint3: true, constraint8: false};
+	var constraint3 = true;
 	var dominatorListAll;
 	var node1;
 	var node2;
-	var message = "no_error";
-	var maximum;
-	//Check if it is possible to achieve K,M conectivity with the given values
-	maximum = _findMinimumConnectivity();
-	if((k > maximum) || (m > maximum)){
-		message = "Make sure both K and M are <= " + maximum;
-		return message;
-	}
-	//Solve constraint 5 ...........
-	_solveConstraint5();
-	console.log("Message is : ", message);
+	var message;
+	var vertexCut;
+	
+	//Solve constraint 5 of the Ahn-Park paper ...........
+	message = _solveConstraint5();
+	//console.log("Message is : ", message);
 	if(message != "no_error"){
 		return message;
 	}
 	/*Calculate step 4 ..........
 	If constraint (5) is solved succesfully and (3) is enabled calculate step 4 of the algorithm.
-	For every two dominators find all the paths between them and get
-	a minimum vertex cut. Then check if the cut satisfies constraint (3).
+	For every two (non-neighbors) dominators find all the paths between them and get
+	a minimum vertex cut. Then check if the cut satisfies constraint (3) (is k,m connected). If not, then
+	the algorithm has failed to produce a minimum K,M CDS for these K and M parameters)
 	*/
-	if(formulation.constraint3){
+	if(constraint3){
 		dominatorListAll = _.union(dominatorListKM,dominatorListWL);
 		for(var i=0; i<(dominatorListAll.length-1); i++){
+			node1 = returnNodeById(dominatorListAll[i]);
 			for(var j=(i+1); j<dominatorListAll.length; j++){
-				node1 = returnNodeById(dominatorListAll[i]);
 				node2 = returnNodeById(dominatorListAll[j]);
-				runPathFinding(node1, node2);
+				//only if they are not neighbors
+				if( _.indexOf( node1.neighbors, node2.id ) == -1){
+					vertexCut = runPathFinding(node1, node2);
+					message = _check_K_M_Connectivity(vertexCut);
+					if(message != "success"){
+						return message;
+					}
+				}
 			}
 		}
 	}
 
-	return message;
+	return "no_error";
 }

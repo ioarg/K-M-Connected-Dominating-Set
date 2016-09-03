@@ -280,8 +280,14 @@ function runPathFinding(start, destination){
 	if(PATHS_DEBUGGING){
 		debugPathString += "<p>Vertex Cut => [ ";
 		for(var l=0; l<vertexCut.length; l++){
-			debugPathString += vertexCut[l] + " ";
+			if (l == vertexCut.length-1){
+				debugPathString += vertexCut[l] + " ";
+			}else{
+				debugPathString += vertexCut[l] + " , ";
+			}
 		}
 		debugPathString += "]</p>";
 	}
+
+	return vertexCut;
 }
