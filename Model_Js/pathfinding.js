@@ -149,10 +149,6 @@ function _constructPaths(destination){
 					//Find the appropriate path - Due to adding/removing paths the order of paths might have changed
 					//so we need to make sure we get the correct path 
 					pathList2[ _returnPathIndex(pathList2, pathList[i]) ].complete = 1;
-				/*	//Debugging code only inside following if() #####
-					if(PATHS_DEBUGGING){
-						debugPathString += "<p>Path end - nowhere to go, the vertex was "+vertex+"</p>";
-					}*/
 				}
 				else{ //the path hasn't ended yet
 					for(var j=0; j < newPaths.length; j++){
@@ -166,10 +162,6 @@ function _constructPaths(destination){
 							tempPath.complete = 0;
 						}
 						pathList2.push(tempPath);
-						/*//Debugging code only inside following if() #####
-						if(PATHS_DEBUGGING){
-							debugPathString += "<p>Added vertex " + newPaths[j] + "</p>";
-						}*/
 					}
 					pathList2 = _removePath(pathList2, pathList[i]);
 				}
@@ -195,42 +187,101 @@ function _keepDestinationPaths(destination){
 	return newList;
 }
 
-function _returnFirstCommonVertex(path1, path2){
+function _returnCommonVertices(path1, path2){
 	var tempList;
 	tempList = _.intersection(path1["vertices"], path2["vertices"]);
 	if (tempList.length > 2){//without start and end
-		return tempList[1];
+		return tempList = tempList.slice(1, tempList.length-1);
 	}
 	return false;
+}
+
+function _areJointPaths(path1, path2){
+	var list = path2.vertices.slice(1, path2.vertices.length-1);
+	for(var k=1; k<(path1.vertices.length-1); k++){	//don't check start of end
+		if(_.indexOf(list, path1.vertices[k]) != -1 ){
+			return true;
+		}
+	}
+	return false;
+}
+
+//Return the vertex that appears most often in the list
+function _mostCommonVertex(list){
+	var tempList = _.uniq(list);
+	var max = 0;
+	var count;
+	var vertex;
+	for(var v=0; v<tempList.length; v++){
+		count = 0;
+		for(var b=0; b<list.length; b++){
+			if(tempList[v] == list[b]){
+				count++;
+			}
+		}
+		if(count > max){
+			max = count;
+			vertex = tempList[v];
+		}
+	}
+	return vertex;
+}
+
+//Give me the paths that don't contain that vertex
+function _pathsWithoutVertex(pathIndexes, vertex){
+	var newList = [];
+	var index;
+	for(var i=0; i<pathIndexes.length; i++){
+		index = pathIndexes[i];
+		if(_.idexOf(pathList[index].vertices, vertex) == -1){
+			newList.push(index);
+		}
+	}
+	return newList;
 }
 
 //Obtain a minimum vertex cut using the paths found from the function above
 function _obtainMinimumVertexCut(destination){
 	var vertexCut = [];
-	var firstVertex;
 	var jointPathsIndexes = [];
 	var disjointPathsIndexes = [];
-	var disjoint = true; //is the path disjoint from the others?
-	var tempPath;
-	//check every two paths for common vertices
+	var tempPaths;
+	var allCommonVertices;
+	var selectedVertex;
+	var result;
+	//First we need to check the paths that join each other
+	//Check every two paths for common vertices
 	for(var i=0; i<(pathList.length-1); i++){
-		for(var j=(i+1); j<pathList.length; j++){
-			//if they have common vertices, add the first one to the cut
-			firstVertex = _returnFirstCommonVertex(pathList[i],pathList[j]);
-			if(firstVertex != false){
-				vertexCut.push(firstVertex);
-				jointPathsIndexes.push(j);
-				disjoint = false;
+		//If this path is not already marked as joint
+		if(_.indexOf(jointPathsIndexes, i) == -1){
+			tempPaths = [i];
+			//for every next path, if there is a common vertex, add the path's index to the list
+			for(var j=(i+1); j<pathList.length; j++){
+				if(_areJointPaths(pathList[i],pathList[j])){
+					tempPaths.push(j);
+					jointPathsIndexes.push(j);
+				}
+			}
+			//Now we should have the paths joining with i
+			if(tempPaths.length >1 ){
+				jointPathsIndexes.push(i);
+				//Get all common vertices between all paths, we allow duplicates
+				allCommonVertices = [];
+				for(var p=0; p<tempPaths.length; p++){
+					for(var t=p+1; t<tempPaths.length; t++){
+						result = _returnCommonVertices(pathList[tempPaths[p]], pathList[tempPaths[t]] );
+						if(result){
+							allCommonVertices = allCommonVertices.concat(result);
+						}
+					}
+				}
+				//now the vertex with the most duplicates is the best candidate for the vertex cut
+				selectedVertex = _mostCommonVertex(allCommonVertices);
+				vertexCut.push(selectedVertex);
 			}
 		}
-		//it might insert a path more than once but that doesn't matter
-		//because of the _.uniq() function we use below
-		if(!disjoint){
-			jointPathsIndexes.push(i);
-			disjoint = true;
-		}
 	}
-	jointPathsIndexes = _.uniq(jointPathsIndexes);
+	//Now add the first vertex of each disjoint path
 	disjointPathsIndexes = _.difference( _.range(pathList.length), jointPathsIndexes);
 	disjointPathsIndexes.forEach(function(elem){
 		vertexCut.push(pathList[elem].vertices[1]); //we kept the start node so we need the next vertex => vertices[1]
@@ -268,7 +319,6 @@ function runPathFinding(start, destination){
 		debugPathString += "All possible paths found .....";
 		_printPathsFound();
 	}
-	console.log("pathList : ", pathList);
 	pathList = _keepDestinationPaths(destination);
 	//Debugging code only inside following if() #####
 	if(PATHS_DEBUGGING){
@@ -288,6 +338,5 @@ function runPathFinding(start, destination){
 		}
 		debugPathString += "]</p>";
 	}
-
 	return vertexCut;
 }

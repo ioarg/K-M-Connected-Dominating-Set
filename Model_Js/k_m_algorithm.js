@@ -60,24 +60,19 @@ var _dominatorSetConnectivity = function(p, options){
 	if(options != "d" && options != "n"){
 		return "Option unsupported in  _dominatorSetConnectivity()";
 	}
-	//console.log("Setting Connectivity ======>");
 	while( _areAllDominators() == false ){
 		if(options == "d"){
-			//console.log("Checking the dominators for connectivity ",p);
 			list = network.nodes.filter(function(index) {
 				return (index.dominator == true) && ( _isPConnected(index,p) == false );
 			});
 		}
 		else if(options == "n"){
-			//console.log("Checking the dominatees for connectivity ",p);
 			list = network.nodes.filter(function(index) {
 				return (index.dominator == false) && ( _isPConnected(index,p) == false );
 			});
 		}
-		//console.log("The list is now : ", list);
 		//we have succeded
 		if(list.length == 0){
-			//console.log("Connectivity success $$$$$$$$");
 			return "success";
 		}
 		//Reset all the preference values changed in previous invokations
@@ -114,11 +109,9 @@ var _dominatorSetConnectivity = function(p, options){
 		many nodes as possible is updated at once.
 		*/
 		candidate = _.max( network.nodes, function(el){ return el.preferedBy;} );
-		console.log("Candidate : ", candidate);
 		//make this candidate dominator
 		network.nodes[returnNodeIndexById(candidate.id)].dominator = true;
 		dominatorListKM.push(candidate.id);
-		console.log("New dominator : ", candidate.id);
 	}
 	return "Could not succeed with these K and M parameters. Please try with different values";
 }
@@ -128,13 +121,10 @@ function _solveConstraint5(){
 	var domListAfter;
 	var result;
 	if( k>0 && m>0){
-		/*console.log("Constructing K,M only with constraint (5) ======>");
-		  console.log("K : ",k," M : ",m); */
 		domListBefore = _returnAllDominatorIds();
 		domListAfter = [-1,-2];
 		while( _.difference(domListBefore, domListAfter).length != 0 ){
 			domListBefore = _returnAllDominatorIds(); 
-			//console.log("Dominator List before: ", domListBefore);
 			result = _dominatorSetConnectivity(k, "d");
 			if(result != "success"){
 				return result;
@@ -144,7 +134,6 @@ function _solveConstraint5(){
 				return result;
 			}
 			domListAfter = _returnAllDominatorIds();
-			//console.log("Dominator List after: ", domListAfter);
 		}
 	}
 	finalResultsStringKM += "<p>Extra dominators after K,M : " + dominatorListKM +"</p>";
@@ -183,15 +172,13 @@ function k_m_algorithm(){
 	var node1;
 	var node2;
 	var message;
-	var vertexCut;
-	
-	//Solve constraint 5 of the Ahn-Park paper ...........
+	var vertexCut;	
+	//Solve constraint 5 of the Ahn-Park paper 
 	message = _solveConstraint5();
-	//console.log("Message is : ", message);
 	if(message != "no_error"){
 		return message;
 	}
-	/*Calculate step 4 ..........
+	/*Calculate step 4
 	If constraint (5) is solved succesfully and (3) is enabled calculate step 4 of the algorithm.
 	For every two (non-neighbors) dominators find all the paths between them and get
 	a minimum vertex cut. Then check if the cut satisfies constraint (3) (is k,m connected). If not, then
@@ -214,6 +201,5 @@ function k_m_algorithm(){
 			}
 		}
 	}
-
 	return "no_error";
 }

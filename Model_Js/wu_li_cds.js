@@ -2,7 +2,6 @@
 This file will contain the Wu&Li CDS algorithm
 implementation
 */
-
 var dominatorListWL = [];	//the dominators after Wu & Li's algorithm
 var finalResultsStringWL = "<p class=\"text-info\"><b>Initially we use the Wu && Li algorithm to obtain a minimum CDS</b></p>";
 
@@ -42,22 +41,18 @@ var _implementWLStep1 = function(){
 	//Initial decision without Rule1 && Rule 2 ========
 	//for every node
 	for(var i=0; i<network.nodes.length; i++){
-		console.log("Current node : ", network.nodes[i].id);
 		//for every neighbor of that node
 		for(var j=0; j<network.nodes[i].neighbors.length; j++){
 			//get a list of all the other neighbors than the current one
 			neighborCheckList = network.nodes[i].neighbors.filter(function(el){
 				return el != network.nodes[i].neighbors[j]; 
 			});
-			console.log("Checking neighbor : ", network.nodes[i].neighbors[j]);
-			console.log("Remaining neighbors to check : ", neighborCheckList);
 			if(neighborCheckList.length > 0){
 				//Is j connected to all the other neighbor nodes?
 				tempNode = network.nodes[ returnNodeIndexById(network.nodes[i].neighbors[j])];
 				for(var k=0; k<neighborCheckList.length; k++){
 					if( !_hasNeighbor(tempNode, neighborCheckList[k]) ){
 						neighborsConnected = false;
-						console.log("The following neighbors are unconnected : ", tempNode.id, " , ", neighborCheckList[k]);
 						break;
 					}
 				}
@@ -71,7 +66,6 @@ var _implementWLStep1 = function(){
 		}
 	}
 	finalResultsStringWL += "<p>Dominators after first step : " + dominatorListWL +"</p>";
-	console.log("Network after WL Step 1 ", network);
 }
 
 //This function implements the Rule 1 of the algorithm
@@ -82,17 +76,14 @@ var _implementWLRule1 = function(){
 	var p=0;
 	var resetP = false;
 	var reducedNeighborSet;
-	console.log("Beginning WL Rule 1 =======>"); 
 	//Traverse the list of the dominators
 	while( p<dominatorListWL.length){
-		console.log("Checking dominator : ", dominatorListWL[p]);
 		//get the dominator node object
 		curNode = network.nodes[returnNodeIndexById(dominatorListWL[p])];
 		//get the rest of the dominators
 		checkNodeList = dominatorListWL.filter(function(el){
 			return el != dominatorListWL[p];
 		});
-		console.log("Remaining dominators : ",checkNodeList);
 		//for every other dominator, check if the neighbors of p are a
 		//subset of the neighbors of that other dominator
 		for(var d=0; d<checkNodeList.length; d++){
@@ -108,8 +99,6 @@ var _implementWLRule1 = function(){
 					network.nodes[returnNodeIndexById(curNode.id)].dominator = false;
 					dominatorListWL = checkNodeList;
 					resetP = true;
-					console.log("Node ", curNode.id, " will be replaced by ", otherDom.id);
-					console.log("New dominators list : ", dominatorListWL);
 				}
 			}
 		}
@@ -132,17 +121,14 @@ var _implementWLRule2 = function(){
 	var remainingDomNeighbors;
 	var unionSet;
 	var reducedChecklist;
-	console.log("Beginning WL Rule 2 ============>");
 	//Traverse the dominators list
 	while(g < dominatorListWL.length){
 		//get the current node
 		curDom = network.nodes[ returnNodeIndexById(dominatorListWL[g]) ];
-		console.log("Current dominator : ",curDom);
 		//get the dominator neighbors only
 		domNeighbors = curDom.neighbors.filter(function(index) {
 			return network.nodes[ returnNodeIndexById(index)].dominator == true ;
 		});
-		console.log("Check against : ", domNeighbors);
 		//for each one of these neighbors
 		for(var n=0; n<domNeighbors.length; n++){
 			//get all the other neighbors
@@ -156,8 +142,6 @@ var _implementWLRule2 = function(){
 				if(_hasNeighbor( network.nodes[ returnNodeIndexById(domNeighbors[n])], remainingDomNeighbors[t]) ){
 					unionSet = _.union(network.nodes[ returnNodeIndexById(domNeighbors[n])].neighbors, 
 									network.nodes[ returnNodeIndexById(remainingDomNeighbors[t])].neighbors );
-					console.log("United the sets of : ", domNeighbors[n], ",", remainingDomNeighbors[t]);
-					console.log("Union result : ",unionSet);
 					/*If you're checking for subsets, don't include in your neighborset the node you're checking against
 					if he is your neighbor.Otherwise the subset comparison will check if the other node has himself
 					as a neighbor, which will be always false. */
@@ -191,7 +175,6 @@ CDS, but not k,m connected
 */
 var calculateWuLi = function(){
 	if(network.nodes.length > 2){	
-		console.log("Beginning Wu & Li ===========>");
 		_implementWLStep1();
 		_implementWLRule1();
 		_implementWLRule2();

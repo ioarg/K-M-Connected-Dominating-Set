@@ -27,7 +27,7 @@ $(document).ready(function() {
 		dominatorListKM = [];	
 		finalResultsStringWL = "<p class=\"text-info\"><b>Initially we use the Wu && Li algorithm to obtain a minimum CDS</b></p>";
 		finalResultsStringKM = "<p class=\"text-info\"><b>K,M algorithm results</b></p>";
-		debugPathString = "<p class=\"text-info\"><b>Debugging paths string ########</b></p>";
+		debugPathString = "<p class=\"text-info\"><b>Debugging paths string ############</b></p>";
 		pathList = [];
 		k = -1;					//The k of the k,m connected problem
 		m = -1;											
